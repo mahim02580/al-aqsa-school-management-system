@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Student Dashboard | Al-Aqsa Islami Academy</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #f4f6f9;
+            --sidebar: #ffffff;
+            --card: #ffffff;
+            --text: #1f2937;
+            --primary: #198754;
+            --muted: #6b7280;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --sidebar: #020617;
+            --card: #1e293b;
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* Layout */
+        .app-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar);
+            border-right: 1px solid rgba(0,0,0,.08);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        .sidebar h6 {
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .sidebar a {
+            padding: .75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            text-decoration: none;
+            color: var(--text);
+            border-radius: 10px;
+            margin: .25rem .75rem;
+        }
+
+        .sidebar a.active,
+        .sidebar a:hover {
+            background: rgba(25,135,84,.12);
+            color: var(--primary);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 1rem;
+        }
+
+        /* Main content */
+        .main {
+            margin-left: 260px;
+            padding: 1rem;
+            width: 100%;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: .3s;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main {
+                margin-left: 0;
+            }
+        }
+
+        /* Cards */
+        .card-ui {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,.1);
+        }
+
+        /* Floating QR */
+        .qr-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: #fff;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,.3);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <h6>📘 Student Panel</h6>
+
+        <a href="#" class="active" onclick="loadSection('home')">
+            <i class="bi bi-house"></i> Home
+        </a>
+        <a href="#" onclick="loadSection('curriculum')">
+            <i class="bi bi-journal-bookmark"></i> Curriculum
+        </a>
+        <a href="#" onclick="loadSection('attendance')">
+            <i class="bi bi-calendar-check"></i> Attendance
+        </a>
+        <a href="#" onclick="loadSection('result')">
+            <i class="bi bi-bar-chart"></i> Result
+        </a>
+        <a href="#" onclick="loadSection('fees')">
+            <i class="bi bi-wallet2"></i> Fees
+        </a>
+
+        <!-- User -->
+        <div class="sidebar-footer dropdown">
+            <a href="#" data-bs-toggle="dropdown">
+                <img src="/static/img/avatar.png" width="36" class="rounded-circle">
+            </a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item">Profile</a></li>
+                <li><a class="dropdown-item">Change Password</a></li>
+                <li><a class="dropdown-item text-danger">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main" id="mainContent">
+        <!-- Home loads here -->
+    </div>
+</div>
+
+<!-- QR Scanner Button -->
+<div class="qr-btn" onclick="openQRScanner()">
+    <i class="bi bi-qr-code-scan"></i>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script>
+/* Section loader (SPA-like) */
+function loadSection(section) {
+    if (section === 'home') renderHome();
+    if (section === 'curriculum') renderCurriculum();
+    if (section === 'attendance') renderAttendance();
+}
+
+/* ---------------- HOME ---------------- */
+function renderHome() {
+    document.getElementById('mainContent').innerHTML = `
+        <div class="container-fluid">
+            <div class="row g-3">
+                <div class="col-md-6 col-12">
+                    <div class="card-ui">
+                        <h6>📢 Latest Notice</h6>
+                        <p>School will remain closed on Friday.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-12">
+                    <div class="card-ui">
+                        <h6>📘 Today's Curriculum</h6>
+                        <p>Arabic – Lesson 3</p>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="card-ui ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/* ---------------- CURRICULUM ---------------- */
+function renderCurriculum() {
+    let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    let monthBtns = months.map(m => `<button class="btn btn-outline-success m-1">${m}</button>`).join('');
+
+    document.getElementById('mainContent').innerHTML = `
+        <div class="container-fluid">
+            <div class="card-ui mb-3">
+                <h6>📅 Select Month</h6>
+                ${monthBtns}
+            </div>
+
+            <div class="card-ui">
+                <h6>📖 Day Curriculum</h6>
+                <details>
+                    <summary class="fw-medium">Day 5</summary>
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-outline-primary">Arabic</button>
+                        <button class="btn btn-sm btn-outline-primary">Bengali</button>
+                        <button class="btn btn-sm btn-outline-primary">English</button>
+                        <button class="btn btn-sm btn-outline-primary">Math</button>
+                    </div>
+                </details>
+            </div>
+        </div>
+    `;
+}
+
+/* ---------------- ATTENDANCE ---------------- */
+function renderAttendance() {
+    document.getElementById('mainContent').innerHTML = `
+        <div class="container-fluid">
+            <div class="card-ui">
+                <h6>📆 Attendance Calendar</h6>
+                <p><span class="text-success">■</span> Present
+                   <span class="text-warning">■</span> Leave
+                   <span class="text-danger">■</span> Absent</p>
+                <div class="row row-cols-7 g-1">
+                    ${[...Array(30)].map((_,i)=>`
+                        <div class="col">
+                            <div class="p-2 rounded bg-success text-white text-center">${i+1}</div>
+                        </div>`).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/* ---------------- QR SCANNER ---------------- */
+function openQRScanner() {
+    const modal = document.createElement('div');
+    modal.innerHTML = `
+        <div class="modal fade show d-block" style="background:rgba(0,0,0,.7)">
+            <div class="modal-dialog modal-fullscreen">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5>Scan QR Code</h5>
+                        <button onclick="this.closest('.modal').remove()" class="btn-close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="qr-reader" style="width:100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    const qr = new Html5Qrcode("qr-reader");
+    qr.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 },
+        decoded => {
+            window.location.href = decoded; // deep link to curriculum video
+        }
+    );
+}
+
+/* Load home by default */
+renderHome();
+</script>
+
+</body>
+</html>

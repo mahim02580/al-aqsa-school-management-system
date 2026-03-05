@@ -1,0 +1,6 @@
+python-dotenv
+sqlalchemy
+werkzeug
+flask
+flask-sqlalchemy
+flask-login

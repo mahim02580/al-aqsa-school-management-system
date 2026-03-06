@@ -6,8 +6,11 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from werkzeug.security import generate_password_hash, check_password_hash
 from decorators import role_required
 from dotenv import load_dotenv
+import csv
+from datetime import datetime
 
 load_dotenv()
+
 
 def redirect_dashboard(role):
     if role == "admin":
@@ -17,13 +20,14 @@ def redirect_dashboard(role):
     else:
         return redirect(url_for('guardian_dashboard'))
 
+
 class Base(DeclarativeBase):
     pass
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DB_URI")
-
 
 db = SQLAlchemy(app, model_class=Base)
 login_manager = LoginManager(app)
@@ -32,6 +36,7 @@ login_manager = LoginManager(app)
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -47,32 +52,35 @@ class User(db.Model, UserMixin):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+
 with app.app_context():
     db.create_all()
 
     if not User.query.filter_by(username='admin').first():
-        admin = User(username='admin', role='admin')
+        admin = User(username='al-aqsa-sharif', role='admin')
         admin.set_password('admin123')
         db.session.add(admin)
         db.session.commit()
+
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        role = request.form.get('role')
 
-        user = User.query.filter_by(username=username, role=role, is_active=True).first()
+        user = User.query.filter_by(username=username, is_active=True).first()
 
         if user and user.check_password(password):
             login_user(user)
             return redirect_dashboard(user.role)
 
-        flash('Invalid username, password, or role', 'danger')
+        flash('Invalid username or password', 'danger')
         return redirect(url_for("login"))
 
     return render_template('login.html')
+
 
 @app.route('/admin-dashboard')
 @login_required
@@ -80,7 +88,75 @@ def login():
 def admin_dashboard():
     if current_user.role != 'admin':
         return "Forbidden", 403
-    return render_template('admin_dashboard.html')
+    return render_template('admin/admin_dashboard.html')
+
+
+@app.route("/lesson-schedule")
+@login_required
+@role_required("admin")
+def lesson_schedule():
+    return render_template("admin/lesson_schedule.html")
+
+
+@app.route("/upload-curriculum", methods=["POST"])
+@login_required
+@role_required("admin")
+def upload_curriculum():
+    file = request.files["csv_file"]
+
+    csv_reader = csv.DictReader(file.stream.read().decode("utf-8").splitlines())
+
+    for row in csv_reader:
+        class_name = row["class"]
+        subject = row["subject"]
+        date = row["date"]
+        topic = row["topic"]
+        teacher = row["teacher"]
+
+    #     cursor.execute("""
+    #     INSERT INTO curriculum (class,subject,date,topic,teacher)
+    #     VALUES (?,?,?,?,?)
+    #     """, (class_name, subject, date, topic, teacher))
+    #
+    # conn.commit()
+
+    return redirect(url_for("lesson_schedule"))
+
+
+@app.route("/attendance")
+def attendance():
+    return render_template("attendance.html")
+
+
+@app.route("/accounts")
+def accounts():
+    return render_template("accounts.html")
+
+
+@app.route("/result")
+def result():
+    return render_template("result.html")
+
+
+@app.route("/call-services")
+def call_services():
+    return render_template("call_services.html")
+
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+
+@app.route("/qr-scanner")
+def qr_scanner():
+    return render_template("qr_scanner.html")
+
+
+@app.route("/admin-user-management")
+def admin_user_management():
+    return render_template("qr_scanner.html")
+
 
 @app.route('/teacher-dashboard')
 @login_required
@@ -100,11 +176,18 @@ def guardian_dashboard():
     return render_template('student_dashboard.html')
 
 
+@app.route('/change-password')
+@login_required
+def change_password():
+    return render_template("change_password.html")
+
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")

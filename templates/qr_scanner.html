@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Scan Lesson QR</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#0f172a;
+display:flex;
+align-items:center;
+justify-content:center;
+height:100vh;
+}
+
+/* card */
+
+.card{
+background:white;
+padding:20px;
+border-radius:20px;
+box-shadow:0 10px 25px rgba(0,0,0,.2);
+width:350px;
+text-align:center;
+}
+
+/* title */
+
+.title{
+font-size:20px;
+font-weight:600;
+margin-bottom:10px;
+}
+
+/* scanner */
+
+#reader{
+width:100%;
+border-radius:10px;
+overflow:hidden;
+}
+
+/* message */
+
+.message{
+margin-top:10px;
+font-size:14px;
+color:#555;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="title">
+📚 Scan Lesson QR
+</div>
+
+<div id="reader"></div>
+
+<div id="msg" class="message">
+Starting camera...
+</div>
+
+</div>
+
+<script>
+
+/* scanner instance */
+
+let html5QrCode = new Html5Qrcode("reader")
+
+/* scan success */
+
+function onScanSuccess(decodedText){
+
+document.getElementById("msg").innerText="QR detected! Opening lesson..."
+
+html5QrCode.stop()
+
+setTimeout(function(){
+
+window.location.href="/video/"+decodedText
+
+},500)
+
+}
+
+/* start camera */
+
+Html5Qrcode.getCameras().then(function(devices){
+
+if(devices.length){
+
+html5QrCode.start(
+
+{ facingMode:"environment" },
+
+{
+fps:10,
+qrbox:{width:250,height:250}
+},
+
+onScanSuccess
+
+)
+
+document.getElementById("msg").innerText="Point camera at QR code"
+
+}else{
+
+document.getElementById("msg").innerText="No camera found"
+
+}
+
+}).catch(function(err){
+
+document.getElementById("msg").innerText="Camera permission denied"
+
+console.log(err)
+
+})
+
+</script>
+
+</body>
+
+</html>

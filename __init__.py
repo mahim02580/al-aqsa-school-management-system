@@ -1,13 +1,15 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import ForeignKey, Date, Time
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from decorators import role_required
 from dotenv import load_dotenv
 import csv
-from datetime import datetime
+import pandas as pd
+from datetime import date
 
 load_dotenv()
 
@@ -54,6 +56,40 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password_hash, password)
 
 
+class Class(db.Model):
+    __tablename__ = "classes"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column()
+
+    lesson_schedules = relationship("Curriculum", back_populates="class_")
+
+
+class Subject(db.Model):
+    __tablename__ = "subjects"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column()
+
+    lesson_schedules = relationship("Curriculum", back_populates="subject")
+
+
+class Curriculum(db.Model):
+    __tablename__ = "curriculum"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    class_id: Mapped[int] = mapped_column(ForeignKey("classes.id"))
+    subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id"))
+    date: Mapped[date] = mapped_column(Date, nullable=False)
+    topic: Mapped[str] = mapped_column()
+
+    class_ = relationship("Class", back_populates="lesson_schedules")
+    subject = relationship("Subject", back_populates="lesson_schedules")
+
+
+class Video(db.Model):
+    __tablename__ = "videos"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    link: Mapped[str] = mapped_column(nullable=False)
+
+
 with app.app_context():
     db.create_all()
 
@@ -98,29 +134,68 @@ def lesson_schedule():
     return render_template("admin/lesson_schedule.html")
 
 
-@app.route("/upload-curriculum", methods=["POST"])
+@app.route("/upload_curriculum", methods=["POST"])
 @login_required
 @role_required("admin")
 def upload_curriculum():
-    file = request.files["csv_file"]
+    class_name = request.form["class_name"]
+    class_obj = db.session.execute(db.select(Class).where(Class.name == class_name)).scalar()
+    subject = request.form["subject"]
+    subject_obj = db.session.execute(db.select(Subject).where(Subject.name == subject)).scalar()
+    file = request.files["excel_file"]
 
-    csv_reader = csv.DictReader(file.stream.read().decode("utf-8").splitlines())
+    # read excel
+    df = pd.read_csv(file)
 
-    for row in csv_reader:
-        class_name = row["class"]
-        subject = row["subject"]
-        date = row["date"]
-        topic = row["topic"]
-        teacher = row["teacher"]
-
-    #     cursor.execute("""
-    #     INSERT INTO curriculum (class,subject,date,topic,teacher)
-    #     VALUES (?,?,?,?,?)
-    #     """, (class_name, subject, date, topic, teacher))
-    #
-    # conn.commit()
+    for index, row in df.iterrows():
+        curriculum_date = str(row["Date"])
+        day, month, year = curriculum_date.split("/")
+        date_obj = date(day=int(day), month=int(month), year=int(year))
+        topic = row["Topic"]
+        curriculum_obj = Curriculum(class_id=class_obj.id, subject_id=subject_obj.id, date=date_obj, topic=topic)
+        db.session.add(curriculum_obj)
+        db.session.commit()
 
     return redirect(url_for("lesson_schedule"))
+
+
+@app.route("/api/search-curriculum", methods=["POST"])
+def search_curriculum():
+    data = request.json
+    class_name = data["class"]
+    class_obj = db.session.execute(db.select(Class).where(Class.name == class_name)).scalar()
+    lesson_schedule_date = data["date"]
+    year, month, day = lesson_schedule_date.split("-")
+    date_obj = date(day=int(day), month=int(month), year=int(year))
+
+    result = db.session.execute(
+        db.select(Curriculum).where(Curriculum.class_id == class_obj.id and Curriculum.date == date_obj))
+
+    rows = result.scalars().all()
+
+    results = []
+
+    for r in rows:
+        results.append({
+            "id": r.id,
+            "class": r.class_.name,
+            "subject": r.subject.name,
+            "date": r.date,
+            "topic": r.topic,
+        })
+
+    return {"data": results}
+
+
+@app.route("/api/update-curriculum", methods=["POST"])
+def update_curriculum():
+    data = request.json
+
+    lesson_schedule = db.session.get(Curriculum, int(data["id"]))
+    lesson_schedule.topic = data["topic"]
+    db.session.commit()
+
+    return {"status": "success"}
 
 
 @app.route("/attendance")
@@ -151,6 +226,19 @@ def about():
 @app.route("/qr-scanner")
 def qr_scanner():
     return render_template("qr_scanner.html")
+
+
+@app.route("/video/<int:video_id>")
+def show_video(video_id):
+    video = db.session.execute(db.select(Video).where(Video.id == video_id)).scalar()
+
+    if not video:
+        return abort(404)
+
+    return render_template(
+        "video.html",
+        video_link=video.link
+    )
 
 
 @app.route("/admin-user-management")

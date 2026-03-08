@@ -1,63 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Scan Lesson QR</title>
+    <title>QR Code Scanner</title>
+    <link href="{{url_for('static', filename='/img/al-aqsa-icon.jpg')}}" rel="icon">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8"></script>
 
-<script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
 
-<style>
+        body{
+        margin:0;
+        font-family:Arial;
+        background:#ffffff;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+        }
 
-body{
-margin:0;
-font-family:Arial, sans-serif;
-background:#0f172a;
-display:flex;
-align-items:center;
-justify-content:center;
-height:100vh;
-}
+        .card{
+        background:white;
+        padding:20px;
+        border-radius:16px;
+        width:340px;
+        text-align:center;
+        box-shadow:0 10px 25px rgba(0,0,0,.3);
+        }
 
-/* card */
+        .title{
+        font-size:20px;
+        font-weight:600;
+        margin-bottom:10px;
+        }
 
-.card{
-background:white;
-padding:20px;
-border-radius:20px;
-box-shadow:0 10px 25px rgba(0,0,0,.2);
-width:350px;
-text-align:center;
-}
+        #reader{
+        width:100%;
+        }
 
-/* title */
+        .msg{
+        margin-top:10px;
+        font-size:14px;
+        color:#555;
+        }
 
-.title{
-font-size:20px;
-font-weight:600;
-margin-bottom:10px;
-}
-
-/* scanner */
-
-#reader{
-width:100%;
-border-radius:10px;
-overflow:hidden;
-}
-
-/* message */
-
-.message{
-margin-top:10px;
-font-size:14px;
-color:#555;
-}
-
-</style>
+    </style>
 
 </head>
 
@@ -65,74 +55,54 @@ color:#555;
 
 <div class="card">
 
-<div class="title">
-📚 Scan Lesson QR
-</div>
+    <div class="title">
+        Scan QR Code on Book
+    </div>
 
-<div id="reader"></div>
+    <div id="reader"></div>
 
-<div id="msg" class="message">
-Starting camera...
-</div>
+    <div id="msg" class="msg">
+        Point Camera Towards QR Code
+    </div>
 
 </div>
 
 <script>
 
-/* scanner instance */
+    function startScanner(){
 
-let html5QrCode = new Html5Qrcode("reader")
+    const qrScanner = new Html5Qrcode("reader")
 
-/* scan success */
+    qrScanner.start(
 
-function onScanSuccess(decodedText){
+    { facingMode:"environment" },   // back camera
 
-document.getElementById("msg").innerText="QR detected! Opening lesson..."
+    {
+    fps:15,
+    qrbox:250
+    },
 
-html5QrCode.stop()
+    function(decodedText){
 
-setTimeout(function(){
+    document.getElementById("msg").innerText = "Opening lesson tutorial..."
 
-window.location.href="/video/"+decodedText
+    qrScanner.stop()
 
-},500)
+    setTimeout(function(){
 
-}
+    window.location.href="/video/" + decodedText
 
-/* start camera */
+    },500)
 
-Html5Qrcode.getCameras().then(function(devices){
+    },
 
-if(devices.length){
+    function(error){}
 
-html5QrCode.start(
+    )
 
-{ facingMode:"environment" },
+    }
 
-{
-fps:10,
-qrbox:{width:250,height:250}
-},
-
-onScanSuccess
-
-)
-
-document.getElementById("msg").innerText="Point camera at QR code"
-
-}else{
-
-document.getElementById("msg").innerText="No camera found"
-
-}
-
-}).catch(function(err){
-
-document.getElementById("msg").innerText="Camera permission denied"
-
-console.log(err)
-
-})
+    startScanner()
 
 </script>
 

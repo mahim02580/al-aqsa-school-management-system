@@ -1,26 +1,21 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, abort
+from flask import Flask, render_template, request, redirect, url_for, flash, abort, jsonify
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey, Date, Time
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from werkzeug.security import generate_password_hash, check_password_hash
-from decorators import role_required
+from decorators import roles_required
 from dotenv import load_dotenv
-import csv
 import pandas as pd
-from datetime import date
+from datetime import date, timedelta
+import helpers
 
 load_dotenv()
-
-
-def redirect_dashboard(role):
-    if role == "admin":
-        return redirect(url_for('admin_dashboard'))
-    elif role == "teacher":
-        return redirect(url_for('teacher_dashboard'))
-    else:
-        return redirect(url_for('guardian_dashboard'))
+ADMIN_ROLE = "Admin"
+SERVICE_ADMIN_ROLE = "Service Admin"
+TEACHER_ROLE = "Teacher"
+GUARDIAN_ROLE = "Guardian"
 
 
 class Base(DeclarativeBase):
@@ -37,16 +32,17 @@ login_manager = LoginManager(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
+# DB Models-------------------------------------------------------------------------------------------------------------
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(nullable=False)
-    role: Mapped[str] = mapped_column(nullable=False)  # admin, teacher, guardian
+    role: Mapped[str] = mapped_column(nullable=False)  # Admin, Teacher, Guardian
     is_active: Mapped[bool] = mapped_column(default=True)
 
     def set_password(self, password):
@@ -88,18 +84,22 @@ class Video(db.Model):
     __tablename__ = "videos"
     id: Mapped[int] = mapped_column(primary_key=True)
     link: Mapped[str] = mapped_column(nullable=False)
+    class_id: Mapped[int] = mapped_column(ForeignKey("classes.id"))
 
+
+# End of DB Models------------------------------------------------------------------------------------------------------
 
 with app.app_context():
     db.create_all()
 
-    if not User.query.filter_by(username='admin').first():
-        admin = User(username='al-aqsa-sharif', role='admin')
-        admin.set_password('admin123')
+    if not db.session.execute(db.select(User).where(User.username == 'al-aqsa-sharif')).scalar():
+        admin = User(username='al-aqsa-sharif', role=ADMIN_ROLE)
+        admin.set_password('admin')
         db.session.add(admin)
         db.session.commit()
 
 
+# Routes -------------------------------------------------------------------------------------------------------------
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -109,8 +109,8 @@ def login():
         user = User.query.filter_by(username=username, is_active=True).first()
 
         if user and user.check_password(password):
-            login_user(user)
-            return redirect_dashboard(user.role)
+            login_user(user, duration=timedelta(hours=12))
+            return helpers.redirect_dashboard(user.role)
 
         flash('Invalid username or password', 'danger')
         return redirect(url_for("login"))
@@ -118,25 +118,102 @@ def login():
     return render_template('login.html')
 
 
+# Dashboard Routes -----------------------------------------------------------------------------------------------------
 @app.route('/admin-dashboard')
 @login_required
-@role_required("admin")
+@roles_required(ADMIN_ROLE)
 def admin_dashboard():
-    if current_user.role != 'admin':
-        return "Forbidden", 403
     return render_template('admin/admin_dashboard.html')
 
 
+@app.route('/service-admin-dashboard')
+@login_required
+@roles_required(SERVICE_ADMIN_ROLE)
+def service_admin_dashboard():
+    return render_template('service-admin_dashboard.html')
+
+
+@app.route('/teacher-dashboard')
+@login_required
+@roles_required(TEACHER_ROLE)
+def teacher_dashboard():
+    return render_template('teacher_dashboard.html')
+
+
+@app.route('/guardian-dashboard')
+@login_required
+@roles_required(GUARDIAN_ROLE)
+def guardian_dashboard():
+    return render_template('guardian_dashboard.html')
+
+
+# Options --------------------------------------------------------------------------------------------------------------
 @app.route("/lesson-schedule")
 @login_required
-@role_required("admin")
+@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
 def lesson_schedule():
     return render_template("admin/lesson_schedule.html")
 
 
-@app.route("/upload_curriculum", methods=["POST"])
+@app.route("/attendance")
 @login_required
-@role_required("admin")
+def attendance():
+    return render_template("attendance.html")
+
+
+@app.route("/accounts")
+@login_required
+def accounts():
+    return render_template("accounts.html")
+
+
+@app.route("/result")
+@login_required
+def result():
+    return render_template("result.html")
+
+
+@app.route("/call-services")
+@login_required
+def call_services():
+    return render_template("call_services.html")
+
+
+@app.route("/about")
+@login_required
+def about():
+    return render_template("about.html")
+
+
+@app.route("/qr-code-management")
+@login_required
+@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
+def qr_code_management():
+    return render_template("admin/qr_code_management.html")
+
+
+@app.route("/qr-scanner")
+@login_required
+def qr_scanner():
+    return render_template("qr_scanner.html")
+
+
+@app.route("/tutorial-management")
+@login_required
+@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
+def tutorial_management():
+    return render_template("admin/tutorial_management.html")
+
+
+@app.route("/admin-user-management")
+def admin_user_management():
+    return render_template("admin_user_management.html")
+
+
+# APIs -----------------------------------------------------------------------------------------------------------------
+@app.route("/api/upload_curriculum", methods=["POST"])
+@login_required
+@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
 def upload_curriculum():
     class_name = request.form["class_name"]
     class_obj = db.session.execute(db.select(Class).where(Class.name == class_name)).scalar()
@@ -145,7 +222,7 @@ def upload_curriculum():
     file = request.files["excel_file"]
 
     # read excel
-    df = pd.read_csv(file)
+    df = pd.read_excel(file)
 
     for index, row in df.iterrows():
         curriculum_date = str(row["Date"])
@@ -160,6 +237,8 @@ def upload_curriculum():
 
 
 @app.route("/api/search-curriculum", methods=["POST"])
+@login_required
+@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
 def search_curriculum():
     data = request.json
     class_name = data["class"]
@@ -188,6 +267,8 @@ def search_curriculum():
 
 
 @app.route("/api/update-curriculum", methods=["POST"])
+@login_required
+@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
 def update_curriculum():
     data = request.json
 
@@ -198,70 +279,71 @@ def update_curriculum():
     return {"status": "success"}
 
 
-@app.route("/attendance")
-def attendance():
-    return render_template("attendance.html")
+@app.route("/api/upload-videos", methods=["POST"])
+@login_required
+@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
+def upload_videos():
+    class_name = request.form["class_name"]
+    class_obj = db.session.execute(db.select(Class).where(Class.name == class_name)).scalar()
+
+    file = request.files["excel_file"]
+
+    # read excel
+    df = pd.read_excel(file)
+
+    for index, row in df.iterrows():
+        video_id = str(row["ID"])
+        video_link = row["Link"]
+        video_obj = Video(id=video_id, class_id=class_obj.id, link=video_link)
+        db.session.add(video_obj)
+        db.session.commit()
+
+    return redirect(url_for("tutorial_management"))
 
 
-@app.route("/accounts")
-def accounts():
-    return render_template("accounts.html")
+@app.route("/api/get-video", methods=["POST"])
+@login_required
+@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
+def get_video():
+    data = request.json
+    video_id = data["id"]
 
-
-@app.route("/result")
-def result():
-    return render_template("result.html")
-
-
-@app.route("/call-services")
-def call_services():
-    return render_template("call_services.html")
-
-
-@app.route("/about")
-def about():
-    return render_template("about.html")
-
-
-@app.route("/qr-scanner")
-def qr_scanner():
-    return render_template("qr_scanner.html")
-
-
-@app.route("/video/<int:video_id>")
-def show_video(video_id):
-    video = db.session.execute(db.select(Video).where(Video.id == video_id)).scalar()
+    video = db.session.get(Video, video_id)
 
     if not video:
-        return abort(404)
+        return jsonify({"success": False})
+
+    return jsonify({
+        "success": True,
+        "video": {
+            "id": video.id,
+            "video_link": video.link
+        }
+    })
+
+
+@app.route("/api/update-video", methods=["POST"])
+def update_video():
+    data = request.json
+
+    video = db.session.get(Video, data["video_id"])
+    video.link = data["video_link"]
+
+    db.session.commit()
+
+    return jsonify({"success": True})
+
+
+# Others ---------------------------------------------------------------------------------------------------------------
+@app.route("/video/<int:video_id>")
+@login_required
+def show_video(video_id):
+    video = db.get_or_404(Video, video_id)
 
     return render_template(
         "video.html",
         video_link=video.link
     )
-
-
-@app.route("/admin-user-management")
-def admin_user_management():
-    return render_template("qr_scanner.html")
-
-
-@app.route('/teacher-dashboard')
-@login_required
-@role_required("teacher")
-def teacher_dashboard():
-    if current_user.role != 'teacher':
-        return "Forbidden", 403
-    return render_template('teacher_dashboard.html')
-
-
-@app.route('/guardian-dashboard')
-@login_required
-@role_required("guardian")
-def guardian_dashboard():
-    if current_user.role != 'guardian':
-        return "Forbidden", 403
-    return render_template('student_dashboard.html')
 
 
 @app.route('/change-password')

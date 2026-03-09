@@ -106,10 +106,10 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        user = User.query.filter_by(username=username, is_active=True).first()
+        user = db.session.execute(db.select(User).where(User.username == username and User.is_active == True)).scalar()
 
         if user and user.check_password(password):
-            login_user(user, duration=timedelta(hours=12))
+            login_user(user, duration=timedelta(hours=6))
             return helpers.redirect_dashboard(user.role)
 
         flash('Invalid username or password', 'danger')
@@ -144,7 +144,7 @@ def teacher_dashboard():
 @login_required
 @roles_required(GUARDIAN_ROLE)
 def guardian_dashboard():
-    return render_template('guardian_dashboard.html')
+    return render_template('admin/guardian_dashboard.html')
 
 
 # Options --------------------------------------------------------------------------------------------------------------
@@ -173,18 +173,6 @@ def result():
     return render_template("result.html")
 
 
-@app.route("/call-services")
-@login_required
-def call_services():
-    return render_template("call_services.html")
-
-
-@app.route("/about")
-@login_required
-def about():
-    return render_template("about.html")
-
-
 @app.route("/qr-code-management")
 @login_required
 @roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
@@ -207,7 +195,19 @@ def tutorial_management():
 
 @app.route("/admin-user-management")
 def admin_user_management():
-    return render_template("admin_user_management.html")
+    return render_template("admin/admin_user_management.html")
+
+
+@app.route("/call-services")
+@login_required
+def call_services():
+    return render_template("call_services.html")
+
+
+@app.route("/about")
+@login_required
+def about():
+    return render_template("about.html")
 
 
 # APIs -----------------------------------------------------------------------------------------------------------------

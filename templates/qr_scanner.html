@@ -3,109 +3,303 @@
 
 <head>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-    <title>QR Code Scanner</title>
-    <link href="{{url_for('static', filename='/img/al-aqsa-icon.jpg')}}" rel="icon">
-    <script src="https://unpkg.com/html5-qrcode@2.3.8"></script>
+<title>Scan Tutorial QR</title>
 
-    <style>
+<link href="{{url_for('static', filename='/img/al-aqsa-icon.jpg')}}" rel="icon">
 
-        body{
-        margin:0;
-        font-family:Arial;
-        background:#ffffff;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        height:100vh;
-        }
+<script src="https://unpkg.com/html5-qrcode@2.3.8"></script>
 
-        .card{
-        background:white;
-        padding:20px;
-        border-radius:16px;
-        width:340px;
-        text-align:center;
-        box-shadow:0 10px 25px rgba(0,0,0,.3);
-        }
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-        .title{
-        font-size:20px;
-        font-weight:600;
-        margin-bottom:10px;
-        }
+<style>
 
-        #reader{
-        width:100%;
-        }
+body{
+margin:0;
+font-family:Inter,system-ui,Arial;
+background:#f4f6fb;
+display:flex;
+flex-direction:column;
+height:100vh;
+}
 
-        .msg{
-        margin-top:10px;
-        font-size:14px;
-        color:#555;
-        }
+/* HEADER */
 
-    </style>
+.header{
+padding:14px;
+text-align:center;
+background:white;
+font-weight:600;
+font-size:18px;
+border-bottom:1px solid #eee;
+}
+
+/* MAIN */
+
+.main{
+flex:1;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:16px;
+}
+
+/* SCANNER CARD */
+
+.scanner-card{
+width:100%;
+max-width:420px;
+background:white;
+border-radius:18px;
+padding:18px;
+text-align:center;
+}
+
+/* TITLES */
+
+.title{
+font-size:18px;
+font-weight:600;
+margin-bottom:6px;
+}
+
+.subtitle{
+font-size:13px;
+color:#777;
+margin-bottom:16px;
+}
+
+/* CAMERA */
+
+.camera-wrapper{
+position:relative;
+width:100%;
+border-radius:14px;
+overflow:hidden;
+}
+
+#reader{
+width:100%;
+}
+
+/* animated scan line */
+
+.scan-line{
+position:absolute;
+left:0;
+right:0;
+height:3px;
+background:#28a745;
+animation:scan 2s linear infinite;
+}
+
+@keyframes scan{
+0%{top:0}
+50%{top:90%}
+100%{top:0}
+}
+
+/* CONTROLS */
+
+.controls{
+display:flex;
+justify-content:center;
+gap:14px;
+margin-top:14px;
+}
+
+/* ICON BUTTON */
+
+.btn{
+border:none;
+width:44px;
+height:44px;
+border-radius:50%;
+background:#28a745;
+color:white;
+font-size:18px;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
+
+.btn:active{
+transform:scale(.92);
+}
+
+/* MESSAGE */
+
+.msg{
+margin-top:12px;
+font-size:14px;
+color:#555;
+}
+
+/* MOBILE */
+
+@media (max-width:480px){
+
+.title{
+font-size:16px;
+}
+
+.subtitle{
+font-size:12px;
+}
+
+}
+
+</style>
 
 </head>
 
 <body>
 
-<div class="card">
+<div class="header">
+Al-Aqsa Tutorial Scanner
+</div>
 
-    <div class="title">
-        Scan QR Code on Book
-    </div>
+<div class="main">
 
-    <div id="reader"></div>
+<div class="scanner-card">
 
-    <div id="msg" class="msg">
-        Point Camera Towards QR Code
-    </div>
+<div class="title">
+Scan QR Code on Book
+</div>
+
+<div class="subtitle">
+Point the camera at the QR code to open the lesson video
+</div>
+
+<div class="camera-wrapper">
+
+<div id="reader"></div>
+
+<div class="scan-line"></div>
+
+</div>
+
+<div class="controls">
+
+<button class="btn" onclick="toggleFlash()" title="Flash">
+<i class="fa-solid fa-bolt"></i>
+</button>
+
+<button class="btn" onclick="switchCamera()" title="Switch Camera">
+<i class="fa-solid fa-camera-rotate"></i>
+</button>
+
+</div>
+
+<div id="msg" class="msg">
+Preparing camera...
+</div>
+
+</div>
 
 </div>
 
 <script>
 
-    function startScanner(){
+let qrScanner
+let cameras=[]
+let currentCamera=0
+let flashOn=false
 
-    const qrScanner = new Html5Qrcode("reader")
+/* beep sound */
+const beep = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg")
 
-    qrScanner.start(
+async function startScanner(cameraId){
 
-    { facingMode:"environment" },   // back camera
+qrScanner = new Html5Qrcode("reader")
 
-    {
-    fps:15,
-    qrbox:250
-    },
+qrScanner.start(
 
-    function(decodedText){
+cameraId,
 
-    document.getElementById("msg").innerText = "Opening lesson tutorial..."
+{
+fps:15,
+qrbox:250
+},
 
-    qrScanner.stop()
+function(decodedText){
 
-    setTimeout(function(){
+/* vibration */
+if(navigator.vibrate){
+navigator.vibrate(200)
+}
 
-    window.location.href="/video/" + decodedText
+/* beep */
+beep.play()
 
-    },500)
+document.getElementById("msg").innerText="Opening lesson tutorial..."
 
-    },
+qrScanner.stop()
 
-    function(error){}
+setTimeout(function(){
 
-    )
+window.location.href="/video/"+decodedText
 
-    }
+},600)
 
-    startScanner()
+},
+
+function(error){}
+
+)
+
+}
+
+async function initCamera(){
+
+cameras = await Html5Qrcode.getCameras()
+
+if(cameras.length>0){
+
+startScanner({deviceId:{exact:cameras[currentCamera].id}})
+
+}
+
+}
+
+async function switchCamera(){
+
+if(cameras.length<2) return
+
+await qrScanner.stop()
+
+currentCamera = (currentCamera+1) % cameras.length
+
+startScanner({deviceId:{exact:cameras[currentCamera].id}})
+
+}
+
+async function toggleFlash(){
+
+try{
+
+flashOn=!flashOn
+
+await qrScanner.applyVideoConstraints({
+advanced:[{torch:flashOn}]
+})
+
+}catch(e){
+
+alert("Flash not supported on this device")
+
+}
+
+}
+
+initCamera()
 
 </script>
 
 </body>
-
 </html>

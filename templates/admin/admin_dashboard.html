@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <title>Admin Dashboard | Al-Aqsa Islami Academy</title>
+    <title>Admin Dashboard</title>
 
     <link href="{{url_for('static', filename='/img/al-aqsa-icon.jpg')}}" rel="icon">
 
@@ -163,23 +163,15 @@
         }
 
         .nav-item{
-
         display:flex;
         flex-direction:column;
-
         align-items:center;
         justify-content:center;
-
         text-decoration:none;
-
         color:#777;
-
         font-size:11px;
-
         gap:2px;
-
         transition:all .15s ease;
-
         }
 
         .nav-item i{
@@ -197,7 +189,6 @@
         /* DESKTOP RESPONSIVENESS */
 
         @media (min-width:768px){
-
         .dashboard{
         grid-template-columns:repeat(5,1fr);
         gap:18px;
@@ -227,42 +218,32 @@
         </div>
 
         <div class="dropdown profile-menu">
-
             <div class="profile-trigger" data-bs-toggle="dropdown">
-
                 <i class="bi bi-person-circle profile"></i>
                 <i class="bi bi-chevron-down dropdown-arrow"></i>
-
             </div>
 
             <ul class="dropdown-menu dropdown-menu-end">
-
                 <li>
                     <a class="dropdown-item" href="{{ url_for('change_password') }}">
                         <i class="bi bi-key me-2"></i>Change Password
                     </a>
                 </li>
-
                 <li>
                     <hr class="dropdown-divider">
                 </li>
-
                 <li>
                     <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
                         <i class="bi bi-box-arrow-right me-2"></i>Log Out
                     </a>
                 </li>
-
             </ul>
-
         </div>
-
     </div>
 
     <!-- DASHBOARD -->
 
     <div class="dashboard">
-
         <a href="{{ url_for('lesson_schedule') }}" class="card-link">
             <div class="card-btn">
                 <div class="icon-circle schedule"><i class="bi bi-journal-text"></i></div>
@@ -301,7 +282,7 @@
         <a href="{{ url_for('admin_user_management') }}" class="card-link">
             <div class="card-btn">
                 <div class="icon-circle users"><i class="bi bi-people"></i></div>
-                <div class="card-title">Admin & Users</div>
+                <div class="card-title">User Management</div>
             </div>
         </a>
 
@@ -319,7 +300,6 @@
             </div>
         </a>
     </div>
-
 
 </div>
 

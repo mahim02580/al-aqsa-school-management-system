@@ -3,100 +3,100 @@
 
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Tutorial Management</title>
+    <title>Tutorial Management</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
-<style>
+    <style>
 
-body{
-background:#f4f6fb;
-font-family:Inter,sans-serif;
-margin:0;
-}
+        body{
+        background:#f4f6fb;
+        font-family:Inter,sans-serif;
+        margin:0;
+        }
 
-.header{
-position:fixed;
-top:0;
-left:0;
-right:0;
+        .header{
+        position:fixed;
+        top:0;
+        left:0;
+        right:0;
 
-display:flex;
-justify-content:space-between;
-align-items:center;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
 
-padding:14px 18px;
+        padding:14px 18px;
 
-background:white;
-box-shadow:0 2px 10px rgba(0,0,0,.06);
+        background:white;
+        box-shadow:0 2px 10px rgba(0,0,0,.06);
 
-z-index:1000;
-}
+        z-index:1000;
+        }
 
-.title{
-font-size:18px;
-font-weight:600;
-}
+        .title{
+        font-size:18px;
+        font-weight:600;
+        }
 
-.page{
-margin-top:85px;
-max-width:900px;
-margin-left:auto;
-margin-right:auto;
-padding:14px;
-}
+        .page{
+        margin-top:85px;
+        max-width:900px;
+        margin-left:auto;
+        margin-right:auto;
+        padding:14px;
+        }
 
-.card-ui{
-background:white;
-border-radius:14px;
-padding:18px;
-box-shadow:0 4px 14px rgba(0,0,0,.06);
-margin-bottom:20px;
-}
+        .card-ui{
+        background:white;
+        border-radius:14px;
+        padding:18px;
+        box-shadow:0 4px 14px rgba(0,0,0,.06);
+        margin-bottom:20px;
+        }
 
-.link-box{
-background:#f9fafc;
-padding:10px;
-border-radius:8px;
-word-break:break-all;
-font-size:14px;
-}
+        .link-box{
+        background:#f9fafc;
+        padding:10px;
+        border-radius:8px;
+        word-break:break-all;
+        font-size:14px;
+        }
 
-/* Responsive Video */
+        /* Responsive Video */
 
-.video-wrapper{
-margin-top:10px;
-border-radius:12px;
-overflow:hidden;
-}
+        .video-wrapper{
+        margin-top:10px;
+        border-radius:12px;
+        overflow:hidden;
+        }
 
-/* Mobile Improvements */
+        /* Mobile Improvements */
 
-@media (max-width:576px){
+        @media (max-width:576px){
 
-.header{
-padding:12px 14px;
-}
+        .header{
+        padding:12px 14px;
+        }
 
-.title{
-font-size:16px;
-}
+        .title{
+        font-size:16px;
+        }
 
-.page{
-padding:10px;
-}
+        .page{
+        padding:10px;
+        }
 
-.card-ui{
-padding:14px;
-}
+        .card-ui{
+        padding:14px;
+        }
 
-}
+        }
 
-</style>
+    </style>
 
 </head>
 
@@ -104,99 +104,99 @@ padding:14px;
 
 <div class="header">
 
-<div class="title">
-Tutorial Management
-</div>
+    <div class="title">
+        Tutorial Management
+    </div>
 
-<button class="btn btn-success add-btn"
-data-bs-toggle="modal"
-data-bs-target="#uploadModal">
+    <button class="btn btn-success add-btn"
+            data-bs-toggle="modal"
+            data-bs-target="#uploadModal">
 
-<i class="bi bi-plus-lg"></i>
+        <i class="bi bi-plus-lg"></i>
 
-</button>
+    </button>
 
 </div>
 
 <div class="page">
 
-<!-- SEARCH CARD -->
+    <!-- SEARCH CARD -->
 
-<div class="card-ui">
+    <div class="card-ui">
 
-<div class="row g-2">
+        <div class="row g-2">
 
-<div class="col-12 col-md-9">
+            <div class="col-12 col-md-9">
 
-<label class="form-label">Video ID</label>
+                <label class="form-label">Video ID</label>
 
-<input id="videoId"
-class="form-control"
-placeholder="Enter video ID">
+                <input id="videoId"
+                       class="form-control"
+                       placeholder="Enter video ID">
 
-</div>
+            </div>
 
-<div class="col-12 col-md-3 d-flex align-items-end">
+            <div class="col-12 col-md-3 d-flex align-items-end">
 
-<button id="searchBtn"
-class="btn btn-success w-100">
+                <button id="searchBtn"
+                        class="btn btn-success w-100">
 
-Search
+                    Search
 
-</button>
+                </button>
 
-</div>
+            </div>
 
-</div>
+        </div>
 
-</div>
+    </div>
 
 
-<!-- RESULT CARD -->
+    <!-- RESULT CARD -->
 
-<div id="videoResult"
-style="display:none;"
-class="card-ui">
+    <div id="videoResult"
+         style="display:none;"
+         class="card-ui">
 
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
 
-<h6 class="m-0">
-Video Information
-</h6>
+            <h6 class="m-0">
+                Video Information
+            </h6>
 
-<button
-class="btn btn-sm btn-success"
-id="editBtn"
-data-bs-toggle="modal"
-data-bs-target="#editModal">
+            <button
+                    class="btn btn-sm btn-success"
+                    id="editBtn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editModal">
 
-Edit
+                Edit
 
-</button>
+            </button>
 
-</div>
+        </div>
 
-<div class="mb-3">
+        <div class="mb-3">
 
-<strong class="d-block mb-1">Video Link</strong>
+            <strong class="d-block mb-1">Video Link</strong>
 
-<div id="videoLink" class="link-box"></div>
+            <div id="videoLink" class="link-box"></div>
 
-</div>
+        </div>
 
-<!-- Responsive Video -->
+        <!-- Responsive Video -->
 
-<div class="ratio ratio-16x9 video-wrapper">
+        <div class="ratio ratio-16x9 video-wrapper">
 
-<iframe
-id="videoFrame"
-allowfullscreen>
+            <iframe
+                    id="videoFrame"
+                    allowfullscreen>
 
-</iframe>
+            </iframe>
 
-</div>
+        </div>
 
-</div>
+    </div>
 
 </div>
 
@@ -205,61 +205,62 @@ allowfullscreen>
 
 <div class="modal fade" id="uploadModal">
 
-<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered">
 
-<div class="modal-content">
+        <div class="modal-content">
 
-<div class="modal-header">
+            <div class="modal-header">
 
-<h5 class="modal-title">
-Upload Lesson Tutorials
-</h5>
+                <h5 class="modal-title">
+                    Upload Lesson Tutorials
+                </h5>
 
-<button class="btn-close" data-bs-dismiss="modal"></button>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
 
-</div>
+            </div>
 
-<div class="modal-body">
+            <div class="modal-body">
 
-<form action="{{ url_for('upload_videos') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ url_for('upload_videos') }}" method="POST" enctype="multipart/form-data">
 
-<div class="mb-3">
+                    <div class="mb-3">
 
-<label class="form-label">Class</label>
+                        <label class="form-label">Class</label>
 
-<select name="class_name" class="form-select">
-<option>Play</option>
-<option>Nursery</option>
-<option>One</option>
-<option>Two</option>
-<option>Three</option>
-<option>Four</option>
-<option>Five</option>
-</select>
+                        <select name="class_name" class="form-select">
+                            <option>Play</option>
+                            <option>Nursery</option>
+                            <option>One</option>
+                            <option>Two</option>
+                            <option>Three</option>
+                            <option>Four</option>
+                            <option>Five</option>
+                        </select>
 
-</div>
+                    </div>
 
-<div class="mb-3">
+                    <div class="mb-3">
 
-<label class="form-label">Upload Excel</label>
+                        <label class="form-label">Upload Excel (Must contain 'ID' and 'Link' Column)</label>
 
-<input type="file"
-name="excel_file"
-class="form-control">
+                        <input type="file"
+                               name="excel_file"
+                               accept=".xlsx,.xls"
+                               class="form-control">
 
-</div>
+                    </div>
 
-<button class="btn btn-success w-100">
-Submit
-</button>
+                    <button class="btn btn-success w-100">
+                        Submit
+                    </button>
 
-</form>
+                </form>
 
-</div>
+            </div>
 
-</div>
+        </div>
 
-</div>
+    </div>
 
 </div>
 
@@ -268,47 +269,47 @@ Submit
 
 <div class="modal fade" id="editModal">
 
-<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered">
 
-<div class="modal-content">
+        <div class="modal-content">
 
-<div class="modal-header">
+            <div class="modal-header">
 
-<h5 class="modal-title">
-Edit Video Link
-</h5>
+                <h5 class="modal-title">
+                    Edit Video Link
+                </h5>
 
-<button class="btn-close" data-bs-dismiss="modal"></button>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
 
-</div>
+            </div>
 
-<div class="modal-body">
+            <div class="modal-body">
 
-<form id="updateForm">
+                <form id="updateForm">
 
-<input type="hidden" id="edit_id">
+                    <input type="hidden" id="edit_id">
 
-<label class="form-label">
-Video Link
-</label>
+                    <label class="form-label">
+                        Video Link
+                    </label>
 
-<input
-type="text"
-id="edit_link"
-class="form-control"
-required>
+                    <input
+                            type="text"
+                            id="edit_link"
+                            class="form-control"
+                            required>
 
-<button class="btn btn-success w-100 mt-3">
-Update
-</button>
+                    <button class="btn btn-success w-100 mt-3">
+                        Update
+                    </button>
 
-</form>
+                </form>
 
-</div>
+            </div>
 
-</div>
+        </div>
 
-</div>
+    </div>
 
 </div>
 
@@ -317,80 +318,80 @@ Update
 
 <script>
 
-let currentVideoId=null
+    let currentVideoId=null
 
-document.getElementById("searchBtn").addEventListener("click", async function(){
+    document.getElementById("searchBtn").addEventListener("click", async function(){
 
-const videoId=document.getElementById("videoId").value
+    const videoId=document.getElementById("videoId").value
 
-if(!videoId){
-alert("Enter Video ID")
-return
-}
+    if(!videoId){
+    alert("Enter Video ID")
+    return
+    }
 
-const response=await fetch("/api/get-video",{
+    const response=await fetch("/api/get-video",{
 
-method:"POST",
+    method:"POST",
 
-headers:{
-"Content-Type":"application/json"
-},
+    headers:{
+    "Content-Type":"application/json"
+    },
 
-body:JSON.stringify({
-id:videoId
-})
+    body:JSON.stringify({
+    id:videoId
+    })
 
-})
+    })
 
-const data=await response.json()
+    const data=await response.json()
 
-if(!data.success){
-alert("Video not found")
-return
-}
+    if(!data.success){
+    alert("Video not found")
+    return
+    }
 
-currentVideoId=data.video.id
+    currentVideoId=data.video.id
 
-document.getElementById("videoResult").style.display="block"
+    document.getElementById("videoResult").style.display="block"
 
-document.getElementById("videoLink").innerText=data.video.video_link
+    document.getElementById("videoLink").innerText=data.video.video_link
 
-document.getElementById("videoFrame").src=data.video.video_link
+    document.getElementById("videoFrame").src=data.video.video_link
 
-document.getElementById("edit_id").value=data.video.id
+    document.getElementById("edit_id").value=data.video.id
 
-document.getElementById("edit_link").value=data.video.video_link
+    document.getElementById("edit_link").value=data.video.video_link
 
-})
+    })
 
 
-document.getElementById("updateForm").addEventListener("submit", async function(e){
+    document.getElementById("updateForm").addEventListener("submit", async function(e){
 
-e.preventDefault()
+    e.preventDefault()
 
-const id=document.getElementById("edit_id").value
-const link=document.getElementById("edit_link").value
+    const id=document.getElementById("edit_id").value
+    const link=document.getElementById("edit_link").value
 
-await fetch("/api/update-video",{
+    await fetch("/api/update-video",{
 
-method:"POST",
+    method:"POST",
 
-headers:{
-"Content-Type":"application/json"
-},
+    headers:{
+    "Content-Type":"application/json"
+    },
 
-body:JSON.stringify({
-video_id:id,
-video_link:link
-})
+    body:JSON.stringify({
+    video_id:id,
+    video_link:link
+    })
 
-})
+    })
 
-bootstrap.Modal.getInstance(document.getElementById("editModal")).hide()
+    bootstrap.Modal.getInstance(document.getElementById("editModal")).hide()
 
-document.getElementById("searchBtn").click()
+    document.getElementById("searchBtn").click()
 
-})
+    })
 
 </script>
 

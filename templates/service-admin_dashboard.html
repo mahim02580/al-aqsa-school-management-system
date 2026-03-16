@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <title>Teacher Dashboard</title>
+    <title>Service Admin Dashboard</title>
 
     <link href="{{url_for('static', filename='/img/al-aqsa-icon.jpg')}}" rel="icon">
 
@@ -214,7 +214,7 @@
     <!-- HEADER -->
     <div class="header">
         <div class="title">
-            Teacher Dashboard
+            Service Admin Dashboard
         </div>
 
         <div class="dropdown profile-menu">
@@ -244,19 +244,53 @@
     <!-- DASHBOARD -->
 
     <div class="dashboard">
+        {% if current_user.has_lesson_schedule_option_access: %}
         <a href="{{ url_for('lesson_schedule') }}" class="card-link">
             <div class="card-btn">
                 <div class="icon-circle schedule"><i class="bi bi-journal-text"></i></div>
                 <div class="card-title">Lesson Schedule</div>
             </div>
         </a>
+        {% endif %}
 
-        <a href="{{ url_for('qr_scanner') }}" class="card-link">
+
+        {% if current_user.has_attendance_option_access: %}
+        <a href="{{ url_for('attendance') }}" class="card-link">
             <div class="card-btn">
-                <div class="icon-circle qr"><i class="bi bi-qr-code-scan"></i></div>
-                <div class="card-title">QR Code Scanner</div>
+                <div class="icon-circle attendance"><i class="bi bi-check2-square"></i></div>
+                <div class="card-title">Attendance</div>
             </div>
         </a>
+        {% endif %}
+
+
+        {% if current_user.has_accounts_option_access: %}
+        <a href="{{ url_for('accounts') }}" class="card-link">
+            <div class="card-btn">
+                <div class="icon-circle accounts"><i class="bi bi-cash-stack"></i></div>
+                <div class="card-title">Accounts</div>
+            </div>
+        </a>
+        {% endif %}
+
+        {% if current_user.has_results_option_access: %}
+        <a href="{{ url_for('result') }}" class="card-link">
+            <div class="card-btn">
+                <div class="icon-circle result"><i class="bi bi-award"></i></div>
+                <div class="card-title">Result</div>
+            </div>
+        </a>
+        {% endif %}
+
+        {% if current_user.has_qr_code_access: %}
+        <a href="{{ url_for('qr_code_management') }}" class="card-link">
+            <div class="card-btn">
+                <div class="icon-circle qr"><i class="bi bi-qr-code-scan"></i></div>
+                <div class="card-title">QR Code Management</div>
+            </div>
+        </a>
+        {% endif %}
+
 
         <a href="{{ url_for('call_services') }}" class="card-link">
             <div class="card-btn">

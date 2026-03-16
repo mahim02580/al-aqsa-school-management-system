@@ -3,301 +3,301 @@
 
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Scan Tutorial QR</title>
+    <title>Scan Tutorial QR</title>
 
-<link href="{{url_for('static', filename='/img/al-aqsa-icon.jpg')}}" rel="icon">
+    <link href="{{url_for('static', filename='/img/al-aqsa-icon.jpg')}}" rel="icon">
 
-<script src="https://unpkg.com/html5-qrcode@2.3.8"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8"></script>
 
-<!-- Font Awesome Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<style>
+    <style>
 
-body{
-margin:0;
-font-family:Inter,system-ui,Arial;
-background:#f4f6fb;
-display:flex;
-flex-direction:column;
-height:100vh;
-}
+        body{
+        margin:0;
+        font-family:Inter,system-ui,Arial;
+        background:#f4f6fb;
+        display:flex;
+        flex-direction:column;
+        height:100vh;
+        }
 
-/* HEADER */
+        /* HEADER */
 
-.header{
-padding:14px;
-text-align:center;
-background:white;
-font-weight:600;
-font-size:18px;
-border-bottom:1px solid #eee;
-}
+        .header{
+        padding:14px;
+        text-align:center;
+        background:white;
+        font-weight:600;
+        font-size:18px;
+        border-bottom:1px solid #eee;
+        }
 
-/* MAIN */
+        /* MAIN */
 
-.main{
-flex:1;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:16px;
-}
+        .main{
+        flex:1;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        padding:16px;
+        }
 
-/* SCANNER CARD */
+        /* SCANNER CARD */
 
-.scanner-card{
-width:100%;
-max-width:420px;
-background:white;
-border-radius:18px;
-padding:18px;
-text-align:center;
-}
+        .scanner-card{
+        width:100%;
+        max-width:420px;
+        background:white;
+        border-radius:18px;
+        padding:18px;
+        text-align:center;
+        }
 
-/* TITLES */
+        /* TITLES */
 
-.title{
-font-size:18px;
-font-weight:600;
-margin-bottom:6px;
-}
+        .title{
+        font-size:18px;
+        font-weight:600;
+        margin-bottom:6px;
+        }
 
-.subtitle{
-font-size:13px;
-color:#777;
-margin-bottom:16px;
-}
+        .subtitle{
+        font-size:13px;
+        color:#777;
+        margin-bottom:16px;
+        }
 
-/* CAMERA */
+        /* CAMERA */
 
-.camera-wrapper{
-position:relative;
-width:100%;
-border-radius:14px;
-overflow:hidden;
-}
+        .camera-wrapper{
+        position:relative;
+        width:100%;
+        border-radius:14px;
+        overflow:hidden;
+        }
 
-#reader{
-width:100%;
-}
+        #reader{
+        width:100%;
+        }
 
-/* animated scan line */
+        /* animated scan line */
 
-.scan-line{
-position:absolute;
-left:0;
-right:0;
-height:3px;
-background:#28a745;
-animation:scan 2s linear infinite;
-}
+        .scan-line{
+        position:absolute;
+        left:0;
+        right:0;
+        height:3px;
+        background:#28a745;
+        animation:scan 2s linear infinite;
+        }
 
-@keyframes scan{
-0%{top:0}
-50%{top:90%}
-100%{top:0}
-}
+        @keyframes scan{
+        0%{top:0}
+        50%{top:90%}
+        100%{top:0}
+        }
 
-/* CONTROLS */
+        /* CONTROLS */
 
-.controls{
-display:flex;
-justify-content:center;
-gap:14px;
-margin-top:14px;
-}
+        .controls{
+        display:flex;
+        justify-content:center;
+        gap:14px;
+        margin-top:14px;
+        }
 
-/* ICON BUTTON */
+        /* ICON BUTTON */
 
-.btn{
-border:none;
-width:44px;
-height:44px;
-border-radius:50%;
-background:#28a745;
-color:white;
-font-size:18px;
-cursor:pointer;
-display:flex;
-align-items:center;
-justify-content:center;
-box-shadow:0 4px 10px rgba(0,0,0,.1);
-}
+        .btn{
+        border:none;
+        width:44px;
+        height:44px;
+        border-radius:50%;
+        background:#28a745;
+        color:white;
+        font-size:18px;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        box-shadow:0 4px 10px rgba(0,0,0,.1);
+        }
 
-.btn:active{
-transform:scale(.92);
-}
+        .btn:active{
+        transform:scale(.92);
+        }
 
-/* MESSAGE */
+        /* MESSAGE */
 
-.msg{
-margin-top:12px;
-font-size:14px;
-color:#555;
-}
+        .msg{
+        margin-top:12px;
+        font-size:14px;
+        color:#555;
+        }
 
-/* MOBILE */
+        /* MOBILE */
 
-@media (max-width:480px){
+        @media (max-width:480px){
 
-.title{
-font-size:16px;
-}
+        .title{
+        font-size:16px;
+        }
 
-.subtitle{
-font-size:12px;
-}
+        .subtitle{
+        font-size:12px;
+        }
 
-}
+        }
 
-</style>
+    </style>
 
 </head>
 
 <body>
 
 <div class="header">
-Al-Aqsa Tutorial Scanner
+    Al-Aqsa Tutorial Scanner
 </div>
 
 <div class="main">
 
-<div class="scanner-card">
+    <div class="scanner-card">
 
-<div class="title">
-Scan QR Code on Book
-</div>
+        <div class="title">
+            Scan QR Code on Book
+        </div>
 
-<div class="subtitle">
-Point the camera at the QR code to open the lesson video
-</div>
+        <div class="subtitle">
+            Point the camera at the QR code to open the lesson video
+        </div>
 
-<div class="camera-wrapper">
+        <div class="camera-wrapper">
 
-<div id="reader"></div>
+            <div id="reader"></div>
 
-<div class="scan-line"></div>
+            <div class="scan-line"></div>
 
-</div>
+        </div>
 
-<div class="controls">
+        <div class="controls">
 
-<button class="btn" onclick="toggleFlash()" title="Flash">
-<i class="fa-solid fa-bolt"></i>
-</button>
+            <button class="btn" onclick="toggleFlash()" title="Flash">
+                <i class="fa-solid fa-bolt"></i>
+            </button>
 
-<button class="btn" onclick="switchCamera()" title="Switch Camera">
-<i class="fa-solid fa-camera-rotate"></i>
-</button>
+            <button class="btn" onclick="switchCamera()" title="Switch Camera">
+                <i class="fa-solid fa-camera-rotate"></i>
+            </button>
 
-</div>
+        </div>
 
-<div id="msg" class="msg">
-Preparing camera...
-</div>
+        <div id="msg" class="msg">
+            Preparing camera...
+        </div>
 
-</div>
+    </div>
 
 </div>
 
 <script>
 
-let qrScanner
-let cameras=[]
-let currentCamera=0
-let flashOn=false
+    let qrScanner
+    let cameras=[]
+    let currentCamera=0
+    let flashOn=false
 
-/* beep sound */
-const beep = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg")
+    /* beep sound */
+    const beep = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg")
 
-async function startScanner(cameraId){
+    async function startScanner(cameraId){
 
-qrScanner = new Html5Qrcode("reader")
+    qrScanner = new Html5Qrcode("reader")
 
-qrScanner.start(
+    qrScanner.start(
 
-cameraId,
+    cameraId,
 
-{
-fps:15,
-qrbox:250
-},
+    {
+    fps:15,
+    qrbox:250
+    },
 
-function(decodedText){
+    function(decodedText){
 
-/* vibration */
-if(navigator.vibrate){
-navigator.vibrate(200)
-}
+    /* vibration */
+    if(navigator.vibrate){
+    navigator.vibrate(200)
+    }
 
-/* beep */
-beep.play()
+    /* beep */
+    beep.play()
 
-document.getElementById("msg").innerText="Opening lesson tutorial..."
+    document.getElementById("msg").innerText="Opening lesson tutorial..."
 
-qrScanner.stop()
+    qrScanner.stop()
 
-setTimeout(function(){
+    setTimeout(function(){
 
-window.location.href="/video/"+decodedText
+    window.location.href="/video/"+decodedText
 
-},600)
+    },600)
 
-},
+    },
 
-function(error){}
+    function(error){}
 
-)
+    )
 
-}
+    }
 
-async function initCamera(){
+    async function initCamera(){
 
-cameras = await Html5Qrcode.getCameras()
+    cameras = await Html5Qrcode.getCameras()
 
-if(cameras.length>0){
+    if(cameras.length>0){
 
-startScanner({deviceId:{exact:cameras[currentCamera].id}})
+    startScanner({deviceId:{exact:cameras[currentCamera].id}})
 
-}
+    }
 
-}
+    }
 
-async function switchCamera(){
+    async function switchCamera(){
 
-if(cameras.length<2) return
+    if(cameras.length<2) return
 
-await qrScanner.stop()
+    await qrScanner.stop()
 
-currentCamera = (currentCamera+1) % cameras.length
+    currentCamera = (currentCamera+1) % cameras.length
 
-startScanner({deviceId:{exact:cameras[currentCamera].id}})
+    startScanner({deviceId:{exact:cameras[currentCamera].id}})
 
-}
+    }
 
-async function toggleFlash(){
+    async function toggleFlash(){
 
-try{
+    try{
 
-flashOn=!flashOn
+    flashOn=!flashOn
 
-await qrScanner.applyVideoConstraints({
-advanced:[{torch:flashOn}]
-})
+    await qrScanner.applyVideoConstraints({
+    advanced:[{torch:flashOn}]
+    })
 
-}catch(e){
+    }catch(e){
 
-alert("Flash not supported on this device")
+    alert("Flash not supported on this device")
 
-}
+    }
 
-}
+    }
 
-initCamera()
+    initCamera()
 
 </script>
 

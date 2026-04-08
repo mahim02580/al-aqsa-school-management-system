@@ -245,8 +245,9 @@ def upload_curriculum():
     file = request.files["excel_file"]
 
     # read excel
-    df = pd.read_excel(file)
+    df = pd.read_csv(file)
 
+    print(df)
     for index, row in df.iterrows():
         curriculum_date = str(row["Date"])
         day, month, year = curriculum_date.split("/")
@@ -319,7 +320,7 @@ def upload_videos():
     file = request.files["excel_file"]
 
     # read excel
-    df = pd.read_excel(file)
+    df = pd.read_csv(file)
 
     for index, row in df.iterrows():
         video_id = str(row["ID"])

@@ -126,21 +126,25 @@
         <div class="title">
             Attendance Management
         </div>
-        {% if current_user.role != "Guardian" %}
+
         <button class="btn btn-success add-btn" data-bs-toggle="modal" data-bs-target="#uploadModal">
             <i class="bi bi-plus-lg"></i>
         </button>
-        {% endif %}
     </div>
 
     <div class="page">
         <!-- FILTERS -->
         <div class="filter-card">
             <div class="row g-2">
-                 {% if current_user.role == "Guardian" %}
-                    <input type="hidden" value="Play" id="classSelect">
-                {% else %}
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <select id="branchSelect" class="form-select" required>
+                        <option>Select Branch</option>
+                        <option>Netrakona</option>
+                        <option>Purbadhala</option>
+                        <option>Kalmakanda</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <select id="classSelect" class="form-select" required>
                         <option>Select Class</option>
                         <option>Play</option>
@@ -152,12 +156,25 @@
                         <option>Five</option>
                     </select>
                 </div>
-                {% endif %}
 
-                <div class="col-md-4">
-                    <input id="dateSelect" type="date" class="form-control" required>
+                <div class="col-md-3">
+                    <select id="monthSelect" class="form-select" required>
+                        <option>Select Month</option>
+                        <option>January</option>
+                        <option>February</option>
+                        <option>March</option>
+                        <option>April</option>
+                        <option>May</option>
+                        <option>June</option>
+                        <option>July</option>
+                        <option>August</option>
+                        <option>September</option>
+                        <option>October</option>
+                        <option>November</option>
+                        <option>December</option>
+                    </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <button id="searchBtn" class="btn btn-success w-100">
                         Search
                     </button>
@@ -171,8 +188,10 @@
                 <table class="table curriculum-table align-middle">
                     <thead>
                     <tr>
-                        <th style="width:30%;">Subject</th>
-                        <th style="width:50%;">Topic</th>
+                        <th style="width:20%;">ID</th>
+                        <th style="width:20%;">Total Working Day</th>
+                        <th style="width:20%;">Present</th>
+                        <th style="width:20%;">Absent</th>
                         <th style="width:20%;" class="text-end">Action</th>
                     </tr>
                     </thead>
@@ -188,13 +207,22 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Upload Lesson Schedule
+                        Upload Attendance Info
                     </h5>
                     <button class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
-                    <form action="{{ url_for('upload_curriculum') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url_for('upload_attendance') }}" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Branch</label>
+                            <select name="branch_name" class="form-select">
+                                <option>Netrakona</option>
+                                <option>Purbadhala</option>
+                                <option>Kalmakanda</option>
+                            </select>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label">Class</label>
                             <select name="class_name" class="form-select">
@@ -209,17 +237,25 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Subject</label>
+                            <label class="form-label">Month</label>
                             <select name="subject" class="form-select">
-                                <option>Arabic</option>
-                                <option>Bangla</option>
-                                <option>English</option>
-                                <option>Math</option>
+                                <option>January</option>
+                                <option>February</option>
+                                <option>March</option>
+                                <option>April</option>
+                                <option>May</option>
+                                <option>June</option>
+                                <option>July</option>
+                                <option>August</option>
+                                <option>September</option>
+                                <option>October</option>
+                                <option>November</option>
+                                <option>December</option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Upload Excel (Must contain 'Date' and 'Topic' Column)</label>
+                            <label class="form-label">Upload Excel</label>
                             <input type="file" name="excel_file" class="form-control" required>
                         </div>
 

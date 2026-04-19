@@ -54,7 +54,7 @@
 
         /* CARD */
         .filter-card,
-        .curriculum-card{
+        .attendance-card{
         background:white;
         padding:16px;
         border-radius:16px;
@@ -67,24 +67,24 @@
         overflow-x:auto;
         }
 
-        .curriculum-table{
+        .attendance-table{
         width:100%;
         table-layout:fixed;
         }
 
-        .curriculum-table th,
-        .curriculum-table td{
+        .attendance-table th,
+        .attendance-table td{
         word-wrap:break-word;
         white-space:normal;
         }
 
-        .curriculum-table th{
+        .attendance-table th{
         font-size:14px;
         color:#666;
         font-weight:600;
         }
 
-        .curriculum-table td{
+        .attendance-table td{
         vertical-align:middle;
         }
 
@@ -183,19 +183,18 @@
         </div>
 
         <!-- CURRICULUM TABLE -->
-        <div id="curriculumCard" class="curriculum-card d-none">
+        <div id="attendanceCard" class="attendance-card d-none">
             <div class="table-responsive">
-                <table class="table curriculum-table align-middle">
+                <table class="table attendance-table align-middle">
                     <thead>
                     <tr>
-                        <th style="width:20%;">ID</th>
-                        <th style="width:20%;">Total Working Day</th>
-                        <th style="width:20%;">Present</th>
-                        <th style="width:20%;">Absent</th>
-                        <th style="width:20%;" class="text-end">Action</th>
+                        <th style="width:10%;">ID</th>
+                        <th style="width:30%;">Total Working Day</th>
+                        <th style="width:30%;">Present</th>
+                        <th style="width:30%;">Absent</th>
                     </tr>
                     </thead>
-                    <tbody id="curriculumBody"></tbody>
+                    <tbody id="attendanceBody"></tbody>
                 </table>
             </div>
         </div>
@@ -238,7 +237,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Month</label>
-                            <select name="subject" class="form-select">
+                            <select name="month_name" class="form-select">
                                 <option>January</option>
                                 <option>February</option>
                                 <option>March</option>
@@ -297,15 +296,16 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.getElementById("searchBtn").addEventListener("click", async function(){
+    const branchName = document.getElementById("branchSelect").value
     const className = document.getElementById("classSelect").value
-    const date = document.getElementById("dateSelect").value
+    const monthName = document.getElementById("monthSelect").value
 
-    if(className === "Select Class" || !date){
-    alert("Please select class and date")
+    if(className === "Select Class" || branchName === "Select Branch" || monthName === "Select Month" ){
+    alert("Please select branch, class and month")
     return
 }
 
-    const response = await fetch("/api/search-curriculum",{
+    const response = await fetch("/api/search-attendance",{
 
     method:"POST",
     headers:{
@@ -313,22 +313,24 @@
     },
 
     body:JSON.stringify({
+    branch:branchName,
     class:className,
-    date:date
+    month: monthName,
     })
     })
 
     const result = await response.json()
 
-    const tbody = document.getElementById("curriculumBody")
-    const card = document.getElementById("curriculumCard")
+    const tbody = document.getElementById("attendanceBody")
+    const card = document.getElementById("attendanceCard")
+
     tbody.innerHTML = ""
 
     if(result.data.length === 0){
     tbody.innerHTML = `
     <tr>
         <td colspan="3" class="text-center text-muted">
-        No lesson schedule found
+        No attendance history  found!
         </td>
     </tr>`
     }
@@ -344,18 +346,20 @@
     result.data.forEach(row=>{
     tbody.innerHTML += `
     <tr>
-        <td>${row.subject}</td>
-        <td>${row.topic}</td>
-        <td class="text-end">
-            <button
-            class="btn btn-success btn-sm editBtn"
-            data-id="${row.id}"
-            data-topic="${row.topic}"
-            data-bs-toggle="modal"
-            data-bs-target="#editModal">
-                    Edit
-            </button>
-        </td>
+        <td>${row.ID}</td>
+        <td>${row.total_days}</td>
+        <td>${row.present}</td>
+        <td>${row.absent}</td>
+<!--        <td class="text-end">-->
+<!--            <button-->
+<!--            class="btn btn-success btn-sm editBtn"-->
+<!--            data-id="${row.ID}"-->
+<!--            data-topic="${row.topic}"-->
+<!--            data-bs-toggle="modal"-->
+<!--            data-bs-target="#editModal">-->
+<!--                    Edit-->
+<!--            </button>-->
+<!--        </td>-->
 
     </tr>
     `
@@ -375,15 +379,18 @@
     }
 
 
-    document.getElementById("updateForm").addEventListener("submit", async function(e){
+    document.getElementById("uploadForm").addEventListener("submit", async function(e){
     e.preventDefault()
 
     const data={
-    id:document.getElementById("edit_id").value,
-    topic:document.getElementById("edit_topic").value
+    branch: document.getElementById("edit_id").value,
+    class:document.getElementById("edit_topic").value,
+    month: document.getElementById("").value,
+    excel_file: document.getElementById(""),
+
     }
 
-    await fetch("/api/update-curriculum",{
+    await fetch("/api/upload-attendance",{
     method:"POST",
     headers:{
     "Content-Type":"application/json"

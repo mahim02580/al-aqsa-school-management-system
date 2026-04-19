@@ -1,10 +1,308 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
 
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <title>Accounts Management</title>
+    <link href="{{url_for('static', filename='/img/al-aqsa-icon.jpg')}}" rel="icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body{
+        background:#f4f6fb;
+        font-family:Inter,sans-serif;
+        margin:0;
+        }
+
+        /* HEADER */
+         .header{
+        position:fixed;
+        top:0;
+        left:0;
+        right:0;
+        padding:16px 14px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        background:white;
+        z-index:1000;
+        box-shadow:0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .title{
+        font-weight:600;
+        font-size:18px;
+        }
+
+        .add-btn{
+        border-radius:10px;
+        }
+
+        /* PAGE */
+        .page{
+        margin-top:70px;
+        padding:14px;
+        max-width:1100px;
+        margin-left:auto;
+        margin-right:auto;
+        }
+
+        /* CARD */
+        .filter-card,
+        .curriculum-card{
+        background:white;
+        padding:16px;
+        border-radius:16px;
+        box-shadow:0 4px 15px rgba(0,0,0,.05);
+        margin-bottom:16px;
+        }
+
+        /* TABLE */
+        .table-responsive{
+        overflow-x:auto;
+        }
+
+        .curriculum-table{
+        width:100%;
+        table-layout:fixed;
+        }
+
+        .curriculum-table th,
+        .curriculum-table td{
+        word-wrap:break-word;
+        white-space:normal;
+        }
+
+        .curriculum-table th{
+        font-size:14px;
+        color:#666;
+        font-weight:600;
+        }
+
+        .curriculum-table td{
+        vertical-align:middle;
+        }
+
+        .edit-btn{
+        border-radius:8px;
+        }
+
+        /* DROP AREA */
+        .drop-area{
+        border:2px dashed #cbd5e1;
+        border-radius:12px;
+        padding:30px;
+        text-align:center;
+        cursor:pointer;
+        background:#f9fafc;
+        }
+
+        /* MOBILE IMPROVEMENTS */
+        @media (max-width:768px){
+        .header{
+        padding:12px;
+        }
+
+        .title{
+        font-size:16px;
+        }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+<div class="container p-0">
+    <!-- HEADER -->
+
+    <div class="header">
+        <div class="title">
+            Accounts Management
+        </div>
+        {% if current_user.role != "Guardian" %}
+        <button class="btn btn-success add-btn" data-bs-toggle="modal" data-bs-target="#uploadModal">
+            <i class="bi bi-plus-lg"></i>
+        </button>
+        {% endif %}
+    </div>
+
+    <div class="page">
+        <!-- FILTERS -->
+        <div class="filter-card">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <select id="branchSelect" class="form-select" required>
+                        <option>Select Branch</option>
+                        <option>Netrakona</option>
+                        <option>Purbadhala</option>
+                        <option>Kalmakanda</option>
+                    </select>
+                </div>
+                {% if current_user.role == "Guardian" %}
+                <input type="hidden" value="Play" id="classSelect">
+                {% else %}
+                <div class="col-md-3">
+                    <select id="classSelect" class="form-select" required>
+                        <option>Select Class</option>
+                        <option>Play</option>
+                        <option>Nursery</option>
+                        <option>One</option>
+                        <option>Two</option>
+                        <option>Three</option>
+                        <option>Four</option>
+                        <option>Five</option>
+                    </select>
+                </div>
+                {% endif %}
+
+                <div class="col-md-3">
+                    <select id="monthSelect" class="form-select" required>
+                        <option>Select Month</option>
+                        <option>January</option>
+                        <option>February</option>
+                        <option>March</option>
+                        <option>April</option>
+                        <option>May</option>
+                        <option>June</option>
+                        <option>July</option>
+                        <option>August</option>
+                        <option>September</option>
+                        <option>October</option>
+                        <option>November</option>
+                        <option>December</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button id="searchBtn" class="btn btn-success w-100">
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CURRICULUM TABLE -->
+        <div id="curriculumCard" class="curriculum-card d-none">
+            <div class="table-responsive">
+                <table class="table curriculum-table align-middle">
+                    <thead>
+                    <tr>
+                        <th style="width:20%;">ID</th>
+                        <th style="width:20%;">Total Working Day</th>
+                        <th style="width:20%;">Present</th>
+                        <th style="width:20%;">Absent</th>
+                        <th style="width:20%;" class="text-end">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="curriculumBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPLOAD MODAL -->
+    <div class="modal fade" id="uploadModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Upload Accounts Info
+                    </h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form action="{{ url_for('attendance') }}" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Branch</label>
+                            <select name="class_name" class="form-select">
+                                <option>Netrakona</option>
+                                <option>Purbadhala</option>
+                                <option>Kalmakanda</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Class</label>
+                            <select name="class_name" class="form-select">
+                                <option>Play</option>
+                                <option>Nursery</option>
+                                <option>One</option>
+                                <option>Two</option>
+                                <option>Three</option>
+                                <option>Four</option>
+                                <option>Five</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Month</label>
+                            <select name="subject" class="form-select">
+                                <option>January</option>
+                                <option>February</option>
+                                <option>March</option>
+                                <option>April</option>
+                                <option>May</option>
+                                <option>June</option>
+                                <option>July</option>
+                                <option>August</option>
+                                <option>September</option>
+                                <option>October</option>
+                                <option>November</option>
+                                <option>December</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Upload Excel</label>
+                            <input type="file" name="excel_file" class="form-control" required>
+                        </div>
+
+                        <button class="btn btn-success w-100">
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div class="modal fade" id="editModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Edit Lesson Schedule
+                    </h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateForm">
+                        <input type="hidden" name="id" id="edit_id">
+                        <div class="mb-3">
+                            <label class="form-label">Topic</label>
+                            <input type="text" name="topic" id="edit_topic" class="form-control">
+                        </div>
+                        <button class="btn btn-success w-100">
+                            Update
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+
+</script>
 </body>
 </html>

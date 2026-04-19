@@ -103,6 +103,15 @@ class Video(db.Model):
     link: Mapped[str] = mapped_column(nullable=False)
     class_id: Mapped[int] = mapped_column(ForeignKey("classes.id"))
 
+class Attendance(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    branch: Mapped[str] = mapped_column(nullable=False)
+    class_name: Mapped[str] = mapped_column(nullable=False)
+    month: Mapped[str] = mapped_column(nullable=False)
+    student_id: Mapped[int] = mapped_column(nullable=False)
+    total_days: Mapped[int] = mapped_column(nullable=False)
+    present: Mapped[int] = mapped_column(nullable=False)
+    absent: Mapped[int] = mapped_column(nullable=False)
 
 # End of DB Models------------------------------------------------------------------------------------------------------
 
@@ -540,6 +549,68 @@ def change_password():
     db.session.commit()
     return {"success": True}
 
+@app.route('/api/upload-attendance', methods=['POST'])
+def upload_attendance():
+    file = request.files['excel_file']
+    branch = request.form["branch_name"]
+    class_ = request.form["class_name"]
+    month = request.form["month_name"]
+
+
+    if not file:
+        return "No file uploaded"
+
+    df = pd.read_csv(file)
+
+    # Expected columns
+    required_columns = ["ID", "Total Working Day", "Present", "Absent"]
+
+    for col in required_columns:
+        if col not in df.columns:
+            return f"Missing column: {col}"
+
+    for _, row in df.iterrows():
+        new_record = Attendance(
+            branch=branch,
+            class_name=class_,
+            month=month,
+            student_id=int(row["ID"]),
+            total_days=int(row["Total Working Day"]),
+            present=int(row["Present"]),
+            absent=int(row["Absent"]),
+        )
+        db.session.add(new_record)
+
+    db.session.commit()
+
+    return redirect(url_for("attendance"))
+
+@app.route("/api/search-attendance", methods=["POST"])
+def search_attendance():
+    data = request.json
+
+    branch_name = data.get("branch")
+    class_name = data.get("month")
+    month = data.get("month")
+
+
+
+    result = db.session.execute(
+        db.select(Attendance).where(Attendance.branch == branch_name and Attendance.class_name == class_name and Attendance.month == month))
+
+    rows = result.scalars().all()
+
+    results = []
+
+    for r in rows:
+        results.append({
+            "ID": r.student_id,
+            "total_days": r.total_days,
+            "present": r.present,
+            "absent": r.absent,
+        })
+
+    return {"data": results}
 
 # Others ---------------------------------------------------------------------------------------------------------------
 @app.route("/video/<int:video_id>")

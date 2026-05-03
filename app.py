@@ -8,10 +8,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from decorators import roles_required
 from dotenv import load_dotenv
 import pandas as pd
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import helpers
 
 load_dotenv()
+
 ADMIN_ROLE = "Admin"
 SERVICE_ADMIN_ROLE = "Service Admin"
 TEACHER_ROLE = "Teacher"
@@ -103,6 +104,7 @@ class Video(db.Model):
     link: Mapped[str] = mapped_column(nullable=False)
     class_id: Mapped[int] = mapped_column(ForeignKey("classes.id"))
 
+
 class Attendance(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     branch: Mapped[str] = mapped_column(nullable=False)
@@ -112,6 +114,55 @@ class Attendance(db.Model):
     total_days: Mapped[int] = mapped_column(nullable=False)
     present: Mapped[int] = mapped_column(nullable=False)
     absent: Mapped[int] = mapped_column(nullable=False)
+
+
+class AccountsRecord(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    branch: Mapped[str] = mapped_column(nullable=False)
+    class_name: Mapped[str] = mapped_column(nullable=False)
+    student_id: Mapped[int] = mapped_column(nullable=False)
+    january: Mapped[float] = mapped_column()
+    february: Mapped[float] = mapped_column()
+    march: Mapped[float] = mapped_column()
+    april: Mapped[float] = mapped_column()
+    may: Mapped[float] = mapped_column()
+    june: Mapped[float] = mapped_column()
+    july: Mapped[float] = mapped_column()
+    august: Mapped[float] = mapped_column()
+    september: Mapped[float] = mapped_column()
+    october: Mapped[float] = mapped_column()
+    november: Mapped[float] = mapped_column()
+    december: Mapped[float] = mapped_column()
+
+
+class SemesterResultRecord(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    branch: Mapped[str] = mapped_column(nullable=False)
+    class_name: Mapped[str] = mapped_column(nullable=False)
+    exam_name: Mapped[str] = mapped_column(nullable=False)
+    student_id: Mapped[int] = mapped_column(nullable=False)
+    arabic: Mapped[float] = mapped_column()
+    quran: Mapped[float] = mapped_column()
+    bengali: Mapped[float] = mapped_column()
+    english: Mapped[float] = mapped_column()
+    math: Mapped[float] = mapped_column()
+    class_test: Mapped[float] = mapped_column()
+    presence: Mapped[float] = mapped_column()
+    total: Mapped[float] = mapped_column()
+
+
+class ClassTestResultRecord(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    branch: Mapped[str] = mapped_column(nullable=False)
+    class_name: Mapped[str] = mapped_column(nullable=False)
+    month: Mapped[str] = mapped_column(nullable=False)
+    student_id: Mapped[int] = mapped_column(nullable=False)
+    arabic: Mapped[float] = mapped_column()
+    bengali: Mapped[float] = mapped_column()
+    english: Mapped[float] = mapped_column()
+    math: Mapped[float] = mapped_column()
+    total: Mapped[float] = mapped_column()
+
 
 # End of DB Models------------------------------------------------------------------------------------------------------
 
@@ -203,6 +254,18 @@ def result():
     return render_template("result.html")
 
 
+@app.route("/result/semester-assessment")
+@login_required
+def semester_assessment():
+    return render_template("semester_assessment.html", year=datetime.now().strftime("%Y"))
+
+
+@app.route("/result/class-assessment")
+@login_required
+def class_assessment():
+    return render_template("class_assessment.html", year=datetime.now().strftime("%Y"))
+
+
 @app.route("/qr-code-management")
 @login_required
 @roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
@@ -216,7 +279,7 @@ def qr_scanner():
     return render_template("qr_scanner.html")
 
 
-@app.route("/tutorial-management")
+@app.route("/qr-code-management/tutorial-management")
 @login_required
 @roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
 def tutorial_management():
@@ -549,13 +612,13 @@ def change_password():
     db.session.commit()
     return {"success": True}
 
+
 @app.route('/api/upload-attendance', methods=['POST'])
 def upload_attendance():
     file = request.files['excel_file']
     branch = request.form["branch_name"]
     class_ = request.form["class_name"]
     month = request.form["month_name"]
-
 
     if not file:
         return "No file uploaded"
@@ -585,6 +648,7 @@ def upload_attendance():
 
     return redirect(url_for("attendance"))
 
+
 @app.route("/api/search-attendance", methods=["POST"])
 def search_attendance():
     data = request.json
@@ -593,10 +657,9 @@ def search_attendance():
     class_name = data.get("month")
     month = data.get("month")
 
-
-
     result = db.session.execute(
-        db.select(Attendance).where(Attendance.branch == branch_name and Attendance.class_name == class_name and Attendance.month == month))
+        db.select(Attendance).where(
+            Attendance.branch == branch_name and Attendance.class_name == class_name and Attendance.month == month))
 
     rows = result.scalars().all()
 
@@ -611,6 +674,197 @@ def search_attendance():
         })
 
     return {"data": results}
+
+
+@app.route('/api/upload-accounts', methods=['POST'])
+def upload_accounts():
+    file = request.files['excel_file']
+    branch = request.form["branch_name"]
+    class_ = request.form["class_name"]
+
+    if not file:
+        return "No file uploaded"
+
+    df = pd.read_csv(file)
+
+    for _, row in df.iterrows():
+        new_record = AccountsRecord(
+            branch=branch,
+            class_name=class_,
+            student_id=int(row["ID"]),
+            january=row["January"],
+            february=row["February"],
+            march=row["March"],
+            april=row["April"],
+            may=row["May"],
+            june=row["June"],
+            july=row["July"],
+            august=row["August"],
+            september=row["September"],
+            october=row["October"],
+            november=row["November"],
+            december=row["December"]
+
+        )
+        db.session.add(new_record)
+
+    db.session.commit()
+
+    return redirect(url_for("accounts"))
+
+
+@app.route('/api/search-accounts', methods=['POST'])
+def search_accounts():
+    data = request.json
+
+    branch = data["branch"]
+    class_ = data["class"]
+
+    accounts_records = db.session.execute(db.select(AccountsRecord).where(
+        AccountsRecord.branch == branch and AccountsRecord.class_name == class_)).scalars().fetchall()
+
+    results = []
+    for accounts_record in accounts_records:
+        record = {
+            "ID": accounts_record.student_id,
+            "january": accounts_record.january,
+            "february": accounts_record.february,
+            "march": accounts_record.march,
+            "april": accounts_record.april,
+            "may": accounts_record.may,
+            "june": accounts_record.june,
+            "july": accounts_record.july,
+            "august": accounts_record.august,
+            "september": accounts_record.september,
+            "october": accounts_record.october,
+            "november": accounts_record.november,
+            "december": accounts_record.december,
+        }
+        results.append(record)
+
+    return {"data": results}
+
+
+@app.route('/api/upload-semester-result', methods=['POST'])
+def upload_semester_result():
+    file = request.files['excel_file']
+    branch = request.form["branch_name"]
+    class_ = request.form["class_name"]
+    exam = request.form["exam_name"]
+
+    if not file:
+        return "No file uploaded"
+
+    df = pd.read_csv(file)
+
+    for _, row in df.iterrows():
+        new_record = SemesterResultRecord(
+            branch=branch,
+            class_name=class_,
+            exam_name=exam,
+            student_id=int(row["ID"]),
+            arabic=float(row["Arabic"]),
+            quran=float(row["Quran"]),
+            bengali=float(row["Bengali"]),
+            english=float(row["English"]),
+            math=float(row["Math"]),
+            class_test=float(row["Class Test"]),
+            presence=float(row["Presence"]),
+            total=float(row["Total"]),
+
+        )
+        db.session.add(new_record)
+
+    db.session.commit()
+
+    return redirect(url_for("semester_assessment"))
+
+
+@app.route('/api/search-semester-result', methods=['POST'])
+def search_semester_result():
+    data = request.json
+    branch = data["branch"]
+    class_ = data["class"]
+    exam = data["exam"]
+
+    records = db.session.execute(db.select(SemesterResultRecord).where(
+        SemesterResultRecord.branch == branch and SemesterResultRecord.class_name == class_ and SemesterResultRecord.exam_name == exam)).scalars().all()
+
+    results = []
+    for record in records:
+        new_record = {
+            "ID": record.student_id,
+            "arabic": record.arabic,
+            "quran": record.quran,
+            "bengali": record.bengali,
+            "english": record.english,
+            "math": record.math,
+            "class_test": record.class_test,
+            "presence": record.presence,
+            "total": record.total,
+        }
+        results.append(new_record)
+
+    return {"data": results}
+
+
+@app.route('/api/upload-class-result', methods=['POST'])
+def upload_class_result():
+    file = request.files['excel_file']
+    branch = request.form["branch_name"]
+    class_ = request.form["class_name"]
+    month = request.form["month_name"]
+
+    if not file:
+        return "No file uploaded"
+
+    df = pd.read_csv(file)
+
+    for _, row in df.iterrows():
+        new_record = ClassTestResultRecord(
+            branch=branch,
+            class_name=class_,
+            month=month,
+            student_id=int(row["ID"]),
+            arabic=float(row["Arabic"]),
+            bengali=float(row["Bengali"]),
+            english=float(row["English"]),
+            math=float(row["Math"]),
+            total=float(row["Total"]),
+
+        )
+        db.session.add(new_record)
+
+    db.session.commit()
+
+    return redirect(url_for("class_assessment"))
+
+
+
+@app.route('/api/search-class-result', methods=['POST'])
+def search_class_result():
+    data = request.json
+    branch = data["branch"]
+    class_ = data["class"]
+    month = data["month"]
+
+    records = db.session.execute(db.select(ClassTestResultRecord).where(
+        ClassTestResultRecord.branch == branch and ClassTestResultRecord.class_name == class_ and ClassTestResultRecord.month == month)).scalars().all()
+
+    results = []
+    for record in records:
+        new_record = {
+            "ID": record.student_id,
+            "arabic": record.arabic,
+            "bengali": record.bengali,
+            "english": record.english,
+            "math": record.math,
+            "total": record.total,
+        }
+        results.append(new_record)
+
+    return {"data": results}
+
 
 # Others ---------------------------------------------------------------------------------------------------------------
 @app.route("/video/<int:video_id>")

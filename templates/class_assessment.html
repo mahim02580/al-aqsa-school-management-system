@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <title>Accounts Management</title>
+    <title>Class Assessment</title>
     <link href="{{url_for('static', filename='/img/al-aqsa-icon.jpg')}}" rel="icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -124,7 +124,7 @@
 
     <div class="header">
         <div class="title">
-            Accounts Management
+            Class Assessment
         </div>
 
         <button class="btn btn-success add-btn" data-bs-toggle="modal" data-bs-target="#uploadModal">
@@ -136,7 +136,7 @@
         <!-- FILTERS -->
         <div class="filter-card">
             <div class="row g-2">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <select id="branchSelect" class="form-select" required>
                         <option>Select Branch</option>
                         <option>Netrakona</option>
@@ -144,7 +144,7 @@
                         <option>Kalmakanda</option>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <select id="classSelect" class="form-select" required>
                         <option>Select Class</option>
                         <option>Play</option>
@@ -157,7 +157,26 @@
                     </select>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <select id="monthSelect" class="form-select" required>
+                        <option>Select Month</option>
+                        <option>January {{ year }}</option>
+                        <option>February {{ year }}</option>
+                        <option>March {{ year }}</option>
+                        <option>April {{ year }}</option>
+                        <option>May {{ year }}</option>
+                        <option>June {{ year }}</option>
+                        <option>July {{ year }}</option>
+                        <option>August {{ year }}</option>
+                        <option>September {{ year }}</option>
+                        <option>October {{ year }}</option>
+                        <option>November {{ year }}</option>
+                        <option>December {{ year }}</option>
+
+                    </select>
+                </div>
+
+                <div class="col-md-3">
                     <button id="searchBtn" class="btn btn-success w-100">
                         Search
                     </button>
@@ -171,21 +190,12 @@
                 <table class="table accounts-table align-middle">
                     <thead>
                     <tr>
-                        <th style="width:16%;">ID</th>
-                        <th style="width:7%;">January</th>
-                        <th style="width:7%;">February</th>
-                        <th style="width:7%;">March</th>
-                        <th style="width:7%;">April</th>
-                        <th style="width:7%;">May</th>
-                        <th style="width:7%;">June</th>
-                        <th style="width:7%;">July</th>
-                        <th style="width:7%;">August</th>
-                        <th style="width:7%;">September</th>
-                        <th style="width:7%;">October</th>
-                        <th style="width:7%;">November</th>
-                        <th style="width:7%;">December</th>
-
-
+                        <th style="width:25%;">ID</th>
+                        <th style="width:15%;">Arabic</th>
+                        <th style="width:15%;">Bengali</th>
+                        <th style="width:15%;">English</th>
+                        <th style="width:15%;">Math</th>
+                        <th style="width:15%;">Total</th>
                     </tr>
                     </thead>
                     <tbody id="accountsBody"></tbody>
@@ -200,13 +210,13 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Upload Accounts Info
+                        Upload Result - Class Assessment
                     </h5>
                     <button class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
-                    <form action="{{ url_for('upload_accounts') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url_for('upload_class_result') }}" method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label class="form-label">Branch</label>
                             <select name="branch_name" class="form-select">
@@ -229,6 +239,23 @@
                             </select>
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label">Month</label>
+                            <select name="month_name" class="form-select">
+                                <option>January {{ year }}</option>
+                                <option>February {{ year }}</option>
+                                <option>March {{ year }}</option>
+                                <option>April {{ year }}</option>
+                                <option>May {{ year }}</option>
+                                <option>June {{ year }}</option>
+                                <option>July {{ year }}</option>
+                                <option>August {{ year }}</option>
+                                <option>September {{ year }}</option>
+                                <option>October {{ year }}</option>
+                                <option>November {{ year }}</option>
+                                <option>December {{ year }}</option>
+                            </select>
+                        </div>
 
                         <div class="mb-3">
                             <label class="form-label">Upload Excel</label>
@@ -244,44 +271,20 @@
         </div>
     </div>
 
-    <!-- EDIT MODAL -->
-    <div class="modal fade" id="editModal">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        Edit Lesson Schedule
-                    </h5>
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="updateForm">
-                        <input type="hidden" name="id" id="edit_id">
-                        <div class="mb-3">
-                            <label class="form-label">Topic</label>
-                            <input type="text" name="topic" id="edit_topic" class="form-control">
-                        </div>
-                        <button class="btn btn-success w-100">
-                            Update
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.getElementById("searchBtn").addEventListener("click", async function(){
     const branchName = document.getElementById("branchSelect").value
     const className = document.getElementById("classSelect").value
+    const monthName = document.getElementById("monthSelect").value
 
-    if(className === "Select Class" || branchName === "Select Branch" ){
-    alert("Please select branch and class!")
+    if(className === "Select Class" || branchName === "Select Branch" || monthName === "Select Month" ){
+    alert("Please select branch, class and month!")
     return
 }
 
-    const response = await fetch("/api/search-accounts",{
+    const response = await fetch("/api/search-class-result",{
 
     method:"POST",
     headers:{
@@ -291,6 +294,7 @@
     body:JSON.stringify({
     branch:branchName,
     class:className,
+    month:monthName,
     })
     })
 
@@ -321,18 +325,11 @@
     tbody.innerHTML += `
     <tr>
         <td>${row.ID}</td>
-        <td>${row.january}</td>
-        <td>${row.february}</td>
-        <td>${row.march}</td>
-        <td>${row.april}</td>
-        <td>${row.may}</td>
-        <td>${row.june}</td>
-        <td>${row.july}</td>
-        <td>${row.august}</td>
-        <td>${row.september}</td>
-        <td>${row.october}</td>
-        <td>${row.november}</td>
-        <td>${row.december}</td>
+        <td>${row.arabic}</td>
+        <td>${row.bengali}</td>
+        <td>${row.english}</td>
+        <td>${row.math}</td>
+        <td>${row.total}</td>
     </tr>
     `
 

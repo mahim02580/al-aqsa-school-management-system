@@ -919,7 +919,7 @@ def search_class_result():
 @login_required
 def show_video(video_id):
     if current_user.role == STUDENT_ROLE:
-        if str(current_user.school_id)[:1] != str(video_id[:1]):
+        if str(current_user.school_id)[:1] != str(video_id)[:1]:
             abort(403)
 
     video = db.get_or_404(Video, video_id)

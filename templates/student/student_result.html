@@ -5,15 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <title>Student Dashboard</title>
+    <title>Result</title>
 
-    <link href="{{url_for('static', filename='/img/al-aqsa-icon.jpg')}}" rel="icon">
-
+    <link href="{{url_for('static', filename='img/al-aqsa-icon.jpg')}}" rel="icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
     <style>
+
         body{
         font-family:'Inter',sans-serif;
         background:#f4f6fb;
@@ -24,13 +23,12 @@
         }
 
         /* HEADER */
-
         .header{
         position:fixed;
         top:0;
         left:0;
         right:0;
-        padding:16px 14px;
+        padding:21px 14px;
         display:flex;
         justify-content:space-between;
         align-items:center;
@@ -122,7 +120,6 @@
         }
 
         /* COLORS */
-
         .schedule{background:linear-gradient(135deg,#34d399,#059669);}
         .attendance{background:linear-gradient(135deg,#60a5fa,#2563eb);}
         .accounts{background:linear-gradient(135deg,#fbbf24,#f59e0b);}
@@ -133,7 +130,6 @@
         .users{background:linear-gradient(135deg,#a78bfa,#6d28d9);}
 
         /* TITLE */
-
         .card-title{
         font-size:12px;
         font-weight:500;
@@ -159,7 +155,6 @@
         align-items:center;
         box-shadow:0 -5px 20px rgba(0,0,0,0.08);
         z-index:1000;
-
         }
 
         .nav-item{
@@ -187,7 +182,6 @@
         }
 
         /* DESKTOP RESPONSIVENESS */
-
         @media (min-width:768px){
         .dashboard{
         grid-template-columns:repeat(5,1fr);
@@ -208,92 +202,36 @@
         }
 
     </style>
+
 </head>
+
 <body>
+
 <div class="container p-0">
-    <!-- HEADER -->
+     <!-- HEADER -->
     <div class="header">
-        <div class="title">
-            Student Dashboard
-        </div>
 
-        <div class="dropdown profile-menu">
-            <div class="profile-trigger" data-bs-toggle="dropdown">
-                <i class="bi bi-person-circle profile"></i>
-                <i class="bi bi-chevron-down dropdown-arrow"></i>
-            </div>
+        <div class="title">Result</div>
 
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li>
-                    <a class="dropdown-item" href="{{ url_for('change_password') }}">
-                        <i class="bi bi-key me-2"></i>Change Password
-                    </a>
-                </li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li>
-                    <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
-                        <i class="bi bi-box-arrow-right me-2"></i>Log Out
-                    </a>
-                </li>
-            </ul>
-        </div>
     </div>
 
     <!-- DASHBOARD -->
-
     <div class="dashboard">
-       <a href="{{ url_for('student_lesson_schedule', student_id=current_user.school_id) }}" class="card-link">
+
+        <a href="{{ url_for('student_semester_assessment') }}" class="card-link">
             <div class="card-btn">
-                <div class="icon-circle schedule"><i class="bi bi-journal-text"></i></div>
-                <div class="card-title">Lesson Schedule</div>
+                <div class="icon-circle qr"><i class="bi bi-clipboard-data"></i></div>
+                <div class="card-title">Semester Assessment</div>
             </div>
         </a>
 
-        <a href="{{ url_for('student_attendance', student_id=current_user.school_id) }}" class="card-link">
+        <a href="{{ url_for('student_class_assessment') }}" class="card-link">
             <div class="card-btn">
-                <div class="icon-circle attendance"><i class="bi bi-check2-square"></i></div>
-                <div class="card-title">Attendance</div>
-            </div>
-        </a>
-
-        <a href="{{ url_for('student_accounts', student_id=current_user.school_id) }}" class="card-link">
-            <div class="card-btn">
-                <div class="icon-circle accounts"><i class="bi bi-cash-stack"></i></div>
-                <div class="card-title">Accounts</div>
-            </div>
-        </a>
-
-        <a href="{{ url_for('student_result') }}" class="card-link">
-            <div class="card-btn">
-                <div class="icon-circle result"><i class="bi bi-award"></i></div>
-                <div class="card-title">Result</div>
-            </div>
-        </a>
-
-        <a href="{{ url_for('qr_scanner') }}" class="card-link">
-            <div class="card-btn">
-                <div class="icon-circle qr"><i class="bi bi-qr-code-scan"></i></div>
-                <div class="card-title">QR Code Scanner</div>
-            </div>
-        </a>
-
-        <a href="{{ url_for('call_services') }}" class="card-link">
-            <div class="card-btn">
-                <div class="icon-circle call"><i class="bi bi-telephone"></i></div>
-                <div class="card-title">Call Service</div>
-            </div>
-        </a>
-
-        <a href="{{ url_for('about') }}" class="card-link">
-            <div class="card-btn">
-                <div class="icon-circle about"><i class="bi bi-info-circle"></i></div>
-                <div class="card-title">About</div>
+                <div class="icon-circle users"><i class="bi bi-bar-chart"></i></div>
+                <div class="card-title">Class Assessment</div>
             </div>
         </a>
     </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

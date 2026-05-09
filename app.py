@@ -266,18 +266,33 @@ def student_accounts():
 def result():
     return render_template("result.html")
 
+@app.route("/student-result")
+@login_required
+def student_result():
+    return render_template("student/student_result.html")
+
 
 @app.route("/result/semester-assessment")
 @login_required
 def semester_assessment():
     return render_template("semester_assessment.html", year=datetime.now().strftime("%Y"))
 
+@app.route("/student-result/semester-assessment")
+@login_required
+def student_semester_assessment():
+    student_class = CLASS_MAP[int(str(current_user.school_id)[:1])]
+    return render_template("student/semester_assessment.html", student_class=student_class, year=datetime.now().strftime("%Y"))
 
 @app.route("/result/class-assessment")
 @login_required
 def class_assessment():
     return render_template("class_assessment.html", year=datetime.now().strftime("%Y"))
 
+@app.route("/student-result/class-assessment")
+@login_required
+def student_class_assessment():
+    student_class = CLASS_MAP[int(str(current_user.school_id)[:1])]
+    return render_template("student/class_assessment.html", student_class=student_class, year=datetime.now().strftime("%Y"))
 
 @app.route("/qr-code-management")
 @login_required
@@ -809,11 +824,17 @@ def upload_semester_result():
 @app.route('/api/search-semester-result', methods=['POST'])
 def search_semester_result():
     data = request.json
-    branch = data["branch"]
-    class_ = data["class"]
-    exam = data["exam"]
+    branch = data.get("branch")
+    class_ = data.get("class")
+    exam = data.get("exam")
+    student_id = data.get("student_id")
 
-    records = db.session.query(SemesterResultRecord).filter_by(branch=branch, class_name=class_, exam_name=exam).all()
+
+    if student_id:
+        records = db.session.query(SemesterResultRecord).filter_by(branch=branch, class_name=class_,
+                                                                   exam_name=exam, student_id=student_id).all()
+    else:
+        records = db.session.query(SemesterResultRecord).filter_by(branch=branch, class_name=class_, exam_name=exam).all()
 
     results = []
     for record in records:
@@ -864,11 +885,15 @@ def upload_class_result():
 @app.route('/api/search-class-result', methods=['POST'])
 def search_class_result():
     data = request.json
-    branch = data["branch"]
-    class_ = data["class"]
-    month = data["month"]
+    branch = data.get("branch")
+    class_ = data.get("class")
+    month = data.get("month")
+    student_id = data.get("student_id")
 
-    records = db.session.query(ClassTestResultRecord).filter_by(branch=branch, class_name=class_, month=month).all()
+    if student_id:
+        records = db.session.query(ClassTestResultRecord).filter_by(branch=branch, class_name=class_, month=month, student_id=student_id).all()
+    else:
+        records = db.session.query(ClassTestResultRecord).filter_by(branch=branch, class_name=class_, month=month).all()
 
     results = []
     for record in records:

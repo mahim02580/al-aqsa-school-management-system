@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <title>Accounts</title>
+
+    <link href="{{url_for('static', filename='img/al-aqsa-icon.jpg')}}" rel="icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body{
+        background:#f4f6fb;
+        font-family:Inter,sans-serif;
+        margin:0;
+        }
+
+        /* HEADER */
+         .header{
+        position:fixed;
+        top:0;
+        left:0;
+        right:0;
+        padding:16px 14px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        background:white;
+        z-index:1000;
+        box-shadow:0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .title{
+        font-weight:600;
+        font-size:18px;
+        }
+
+        .add-btn{
+        border-radius:10px;
+        }
+
+        /* PAGE */
+        .page{
+        margin-top:70px;
+        padding:14px;
+        max-width:1100px;
+        margin-left:auto;
+        margin-right:auto;
+        }
+
+        /* CARD */
+        .filter-card,
+        .accounts-card{
+        background:white;
+        padding:16px;
+        border-radius:16px;
+        box-shadow:0 4px 15px rgba(0,0,0,.05);
+        margin-bottom:16px;
+        }
+
+        /* TABLE */
+        .table-responsive{
+        overflow-x:auto;
+        }
+
+        .accounts-table {
+        min-width: 300px;   /* 🔥 force horizontal scroll */
+        table-layout: auto;  /* allow natural width */
+        }
+
+        .accounts-table th,
+        .accounts-table td {
+        white-space: nowrap; /* 🔥 prevent wrapping */
+        }
+
+        .accounts-table th{
+        font-size:14px;
+        color:#666;
+        font-weight:600;
+        }
+
+        .accounts-table td{
+        vertical-align:middle;
+        }
+
+        .edit-btn{
+        border-radius:8px;
+        }
+
+        /* DROP AREA */
+        .drop-area{
+        border:2px dashed #cbd5e1;
+        border-radius:12px;
+        padding:30px;
+        text-align:center;
+        cursor:pointer;
+        background:#f9fafc;
+        }
+
+        /* MOBILE IMPROVEMENTS */
+        @media (max-width:768px){
+        .header{
+        padding:12px;
+        }
+
+        .title{
+        font-size:16px;
+        }
+
+        }
+    </style>
+</head>
+
+<body>
+<div class="container p-0">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="title">Accounts</div>
+    </div>
+
+    <div class="page">
+
+        <input type="hidden" id="studentID" value="{{current_user.school_id}}">
+        <input type="hidden" id="branchSelect" class="form-select" value="{{current_user.branch.name}}" required>
+        <input type="hidden" id="classSelect" class="form-select" value="{{student_class}}" required>
+
+
+
+        <!-- ACCOUNTS TABLE -->
+        <div id="accountsCard" class="accounts-card">
+            <div class="table-responsive">
+                <table class="table accounts-table align-middle">
+                    <thead>
+                    <tr>
+                        <th >Month</th>
+                        <th >Amount</th>
+
+                    </tr>
+                    </thead>
+                    <tbody id="accountsBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    async function get_account_info() {
+
+        const branchName = document.getElementById("branchSelect").value;
+        const className = document.getElementById("classSelect").value;
+        const studentID = document.getElementById("studentID").value;
+
+        try {
+
+            const response = await fetch("/api/search-accounts", {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    branch: branchName,
+                    class: className,
+                    student_id: studentID,
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch account data");
+            }
+
+            const result = await response.json();
+
+            const tbody = document.getElementById("accountsBody");
+
+            tbody.innerHTML = "";
+
+            if (result.data.length === 0) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="2" class="text-center text-danger">
+                            No account records found
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            result.data.forEach(row => {
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>January:</b></td>
+                        <td>${row.january ?? ""}</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>February:</b></td>
+                        <td>${row.february ?? ""}</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>March:</b></td>
+                        <td>${row.march ?? ""}</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>April:</b></td>
+                        <td>${row.april ?? ""}</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>May:</b></td>
+                        <td>${row.may ?? ""}</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>June:</b></td>
+                        <td>${row.june ?? ""}</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>July:</b></td>
+                        <td>${row.july ?? ""}</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>August:</b></td>
+                        <td>${row.august ?? ""}</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>September:</b></td>
+                        <td>${row.september ?? ""}</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>October:</b></td>
+                        <td>${row.october ?? ""}</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>November:</b></td>
+                        <td>${row.november ?? ""}</td>
+                    </tr>
+
+                    <tr>
+                        <td><b>December:</b></td>
+                        <td>${row.december ?? ""}</td>
+                    </tr>
+                `;
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            document.getElementById("accountsBody").innerHTML = `
+                <tr>
+                    <td colspan="2" class="text-center text-danger">
+                        Error loading account information
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    // Load automatically when page opens
+    window.onload = get_account_info;
+
+</script>
+
+
+</body>
+</html>

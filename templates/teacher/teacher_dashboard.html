@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <title>Guardian Dashboard</title>
+    <title>Teacher Dashboard</title>
 
     <link href="{{url_for('static', filename='/img/al-aqsa-icon.jpg')}}" rel="icon">
 
@@ -214,7 +214,7 @@
     <!-- HEADER -->
     <div class="header">
         <div class="title">
-            Guardian Dashboard
+            Teacher Dashboard
         </div>
 
         <div class="dropdown profile-menu">
@@ -244,7 +244,7 @@
     <!-- DASHBOARD -->
 
     <div class="dashboard">
-        <a href="{{ url_for('lesson_schedule') }}" class="card-link">
+       <a href="{{ url_for('lesson_schedule') }}" class="card-link">
             <div class="card-btn">
                 <div class="icon-circle schedule"><i class="bi bi-journal-text"></i></div>
                 <div class="card-title">Lesson Schedule</div>
@@ -272,13 +272,12 @@
             </div>
         </a>
 
-         <a href="{{ url_for('qr_scanner') }}" class="card-link">
+        <a href="{{ url_for('qr_scanner') }}" class="card-link">
             <div class="card-btn">
                 <div class="icon-circle qr"><i class="bi bi-qr-code-scan"></i></div>
                 <div class="card-title">QR Code Scanner</div>
             </div>
         </a>
-
 
         <a href="{{ url_for('call_services') }}" class="card-link">
             <div class="card-btn">

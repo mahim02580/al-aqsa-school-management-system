@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <title>Tutorial Management</title>
+    <title>Lesson Schedule</title>
 
     <link href="{{url_for('static', filename='img/al-aqsa-icon.jpg')}}" rel="icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -54,7 +53,7 @@
 
         /* CARD */
         .filter-card,
-        .tutorial-card{
+        .curriculum-card{
         background:white;
         padding:16px;
         border-radius:16px;
@@ -67,23 +66,24 @@
         overflow-x:auto;
         }
 
-        .tutorial-table {
-        min-width: 1200px;   /* 🔥 force horizontal scroll */
-        table-layout: auto;  /* allow natural width */
+        .curriculum-table{
+        width:100%;
+        table-layout:fixed;
         }
 
-        .tutorial-table th,
-        .tutorial-table td {
-        white-space: nowrap; /* 🔥 prevent wrapping */
+        .curriculum-table th,
+        .curriculum-table td{
+        word-wrap:break-word;
+        white-space:normal;
         }
 
-        .tutorial-table th{
+        .curriculum-table th{
         font-size:14px;
         color:#666;
         font-weight:600;
         }
 
-        .tutorial-table td{
+        .curriculum-table td{
         vertical-align:middle;
         }
 
@@ -110,42 +110,28 @@
         .title{
         font-size:16px;
         }
-
         }
-
-
     </style>
 </head>
-
 <body>
 <div class="container p-0">
     <!-- HEADER -->
     <div class="header">
-        <div class="title">Tutorial Management</div>
-
-        <button class="btn btn-success add-btn" data-bs-toggle="modal" data-bs-target="#uploadModal">
-            <i class="bi bi-plus-lg"></i>
-        </button>
+        <div class="title">Lesson Schedule</div>
     </div>
 
     <div class="page">
         <!-- FILTERS -->
         <div class="filter-card">
             <div class="row g-2">
-                <div class="col-md-9">
-                    <select id="classSelect" class="form-select" required>
-                        <option>Select Class</option>
-                        <option>Play</option>
-                        <option>Nursery</option>
-                        <option>One</option>
-                        <option>Two</option>
-                        <option>Three</option>
-                        <option>Four</option>
-                        <option>Five</option>
-                    </select>
+
+                <input type="hidden" id="classSelect" class="form-select" value="{{student_class}}" required>
+
+                <div class="col-md-6">
+                    <input id="dateSelect" type="date" class="form-control" required>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <button id="searchBtn" class="btn btn-success w-100">
                         Search
                     </button>
@@ -153,17 +139,17 @@
             </div>
         </div>
 
-        <!-- TUTORIAL LINK TABLE -->
-        <div id="tutorialCard" class="tutorial-card d-none">
+        <!-- CURRICULUM TABLE -->
+        <div id="curriculumCard" class="curriculum-card d-none">
             <div class="table-responsive">
-                <table class="table tutorial-table align-middle">
+                <table class="table curriculum-table align-middle">
                     <thead>
                     <tr>
-                        <th style="width:30%;">ID</th>
-                        <th style="width:70%;">Link</th>
+                        <th style="width:30%;">Subject</th>
+                        <th style="width:70%;">Topic</th>
                     </tr>
                     </thead>
-                    <tbody id="tutorialBody"></tbody>
+                    <tbody id="curriculumBody"></tbody>
                 </table>
             </div>
         </div>
@@ -175,17 +161,16 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Upload Tutorial Links
+                        Upload Lesson Schedule
                     </h5>
                     <button class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
-                    <form  method="POST" action="{{ url_for('upload_videos') }}" enctype="multipart/form-data">
-
+                    <form method="POST" action="{{ url_for('upload_curriculum') }}" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <label class="form-label">Class</label>
-                            <select name="class_name" class="form-select">
+                            <label for="class_select" class="form-label">Class</label>
+                            <select id="class_select" name="class_name" class="form-select">
                                 <option>Play</option>
                                 <option>Nursery</option>
                                 <option>One</option>
@@ -196,15 +181,24 @@
                             </select>
                         </div>
 
-
                         <div class="mb-3">
-                            <label class="form-label">Upload Excel (Must contain 'ID' & 'Link' Column)</label>
-                            <input type="file" name="excel_file" accept=".xlsx,.xls" class="form-control" required>
+                            <label for="subject_select" class="form-label">Subject</label>
+                            <select id="subject_select" name="subject_name" class="form-select">
+                                <option>Arabic</option>
+                                <option>Bengali</option>
+                                <option>English</option>
+                                <option>Math</option>
+                            </select>
                         </div>
 
-                        <button class="btn btn-success w-100">
-                            Submit
-                        </button>
+                        <div class="mb-3">
+                            <label for="file_select" class="form-label">Upload Excel (Must contain 'Date' and 'Topic'
+                                Column)</label>
+                            <input id="file_select" type="file" accept=".xlsx,.xls" name="excel_file"
+                                   class="form-control" required>
+                        </div>
+
+                        <button class="btn btn-success w-100">Submit</button>
                     </form>
                 </div>
             </div>
@@ -216,13 +210,14 @@
 <script>
     document.getElementById("searchBtn").addEventListener("click", async function(){
     const className = document.getElementById("classSelect").value
+    const date = document.getElementById("dateSelect").value
 
-    if(className === "Select Class"){
-    alert("Please select class!")
+    if(!date){
+    alert("Please select date")
     return
 }
 
-    const response = await fetch("/api/search-video-links",{
+    const response = await fetch("/api/search-curriculum",{
 
     method:"POST",
     headers:{
@@ -231,21 +226,21 @@
 
     body:JSON.stringify({
     class:className,
+    date:date
     })
     })
 
     const result = await response.json()
 
-    const tbody = document.getElementById("tutorialBody")
-    const card = document.getElementById("tutorialCard")
-
+    const tbody = document.getElementById("curriculumBody")
+    const card = document.getElementById("curriculumCard")
     tbody.innerHTML = ""
 
     if(result.data.length === 0){
     tbody.innerHTML = `
     <tr>
-        <td colspan="3" class="text-center text-muted">
-        No tutorial link found!
+        <td colspan="2" class="text-center text-muted">
+        No lesson schedule found
         </td>
     </tr>`
     }
@@ -256,28 +251,16 @@
         card.classList.add("d-none")
     }
 
-
     result.data.forEach(row=>{
     tbody.innerHTML += `
     <tr>
-        <td>${row.id}</td>
-        <td>${row.link}</td>
+        <td>${row.subject}</td>
+        <td>${row.topic}</td>
     </tr>
     `
 
     })
-    attachEditEvents()
     })
-
-
-    function attachEditEvents(){
-    document.querySelectorAll(".editBtn").forEach(btn=>{
-    btn.addEventListener("click",function(){
-    document.getElementById("edit_id").value=this.dataset.id
-    document.getElementById("edit_topic").value=this.dataset.topic
-    })
-    })
-    }
 
 
 </script>

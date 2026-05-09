@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, jsonify
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import ForeignKey, Date, Time
+from sqlalchemy import ForeignKey, Date
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from decorators import roles_required
@@ -16,7 +16,17 @@ load_dotenv()
 ADMIN_ROLE = "Admin"
 SERVICE_ADMIN_ROLE = "Service Admin"
 TEACHER_ROLE = "Teacher"
-GUARDIAN_ROLE = "Guardian"
+STUDENT_ROLE = "Student"
+
+CLASS_MAP = {
+    1: "Play",
+    2: "Nursery",
+    3: "One",
+    4: "Two",
+    5: "Three",
+    6: "Four",
+    7: "Five",
+}
 
 
 class Base(DeclarativeBase):
@@ -70,42 +80,23 @@ class Branch(db.Model):
     user = relationship("User", back_populates="branch")
 
 
-class Class(db.Model):
-    __tablename__ = "classes"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column()
-
-    lesson_schedules = relationship("Curriculum", back_populates="class_")
-
-
-class Subject(db.Model):
-    __tablename__ = "subjects"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column()
-
-    lesson_schedules = relationship("Curriculum", back_populates="subject")
-
-
 class Curriculum(db.Model):
     __tablename__ = "curriculum"
     id: Mapped[int] = mapped_column(primary_key=True)
-    class_id: Mapped[int] = mapped_column(ForeignKey("classes.id"))
-    subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id"))
-    date: Mapped[date] = mapped_column(Date, nullable=False)
+    class_name: Mapped[str] = mapped_column()
+    subject_name: Mapped[str] = mapped_column()
+    date: Mapped[date] = mapped_column(Date)
     topic: Mapped[str] = mapped_column()
-
-    class_ = relationship("Class", back_populates="lesson_schedules")
-    subject = relationship("Subject", back_populates="lesson_schedules")
 
 
 class Video(db.Model):
     __tablename__ = "videos"
     id: Mapped[int] = mapped_column(primary_key=True)
     link: Mapped[str] = mapped_column(nullable=False)
-    class_id: Mapped[int] = mapped_column(ForeignKey("classes.id"))
+    class_name: Mapped[str] = mapped_column()
 
 
-class Attendance(db.Model):
+class AttendanceRecord(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     branch: Mapped[str] = mapped_column(nullable=False)
     class_name: Mapped[str] = mapped_column(nullable=False)
@@ -142,7 +133,6 @@ class SemesterResultRecord(db.Model):
     exam_name: Mapped[str] = mapped_column(nullable=False)
     student_id: Mapped[int] = mapped_column(nullable=False)
     arabic: Mapped[float] = mapped_column()
-    quran: Mapped[float] = mapped_column()
     bengali: Mapped[float] = mapped_column()
     english: Mapped[float] = mapped_column()
     math: Mapped[float] = mapped_column()
@@ -170,7 +160,7 @@ with app.app_context():
     db.create_all()
 
     if not db.session.execute(db.select(User).where(User.username == 'al-aqsa-sharif')).scalar():
-        branch = Branch(name="Netrakona", office_phone="017222929299", head_teacher_phone="01828282888")
+        branch = Branch(name="Netrakona", office_phone="01811114400", head_teacher_phone="01710500660")
         db.session.add(branch)
         db.session.commit()
 
@@ -187,8 +177,7 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        user = db.session.execute(
-            db.select(User).where((User.username == username) & (User.is_active == True))).scalar()
+        user = db.session.execute(db.select(User).where(User.username == username)).scalar()
 
         if user and user.check_password(password):
             login_user(user, duration=timedelta(hours=3))
@@ -212,40 +201,64 @@ def admin_dashboard():
 @login_required
 @roles_required(SERVICE_ADMIN_ROLE)
 def service_admin_dashboard():
-    return render_template('service-admin_dashboard.html')
+    return render_template('service_admin/service-admin_dashboard.html')
 
 
 @app.route('/teacher-dashboard')
 @login_required
 @roles_required(TEACHER_ROLE)
 def teacher_dashboard():
-    return render_template('teacher_dashboard.html')
+    return render_template('teacher/teacher_dashboard.html')
 
 
-@app.route('/guardian-dashboard')
+@app.route('/student-dashboard')
 @login_required
-@roles_required(GUARDIAN_ROLE)
-def guardian_dashboard():
-    return render_template('guardian/guardian_dashboard.html')
+@roles_required(STUDENT_ROLE)
+def student_dashboard():
+    return render_template('student/student_dashboard.html')
 
 
 # Options --------------------------------------------------------------------------------------------------------------
 @app.route("/lesson-schedule")
 @login_required
 def lesson_schedule():
-    return render_template("admin/lesson_schedule.html")
+    return render_template("lesson_schedule.html")
+
+
+@app.route("/student-lesson-schedule")
+@login_required
+def student_lesson_schedule():
+    student_id = str(request.args.get("student_id"))
+    student_class = CLASS_MAP[int(student_id[:1])]
+    return render_template("student/lesson_schedule.html", student_class=student_class)
 
 
 @app.route("/attendance")
 @login_required
 def attendance():
-    return render_template("attendance.html")
+    return render_template("attendance.html", year=datetime.now().strftime("%Y"))
+
+
+@app.route("/student-attendance")
+@login_required
+def student_attendance():
+    student_id = str(request.args.get("student_id"))
+    student_class = CLASS_MAP[int(student_id[:1])]
+    return render_template("student/attendance.html", student_class=student_class, year=datetime.now().strftime("%Y"))
 
 
 @app.route("/accounts")
 @login_required
 def accounts():
     return render_template("accounts.html")
+
+
+@app.route("/student-accounts")
+@login_required
+def student_accounts():
+    student_id = str(request.args.get("student_id"))
+    student_class = CLASS_MAP[int(student_id[:1])]
+    return render_template("student/student_accounts.html", student_class=student_class)
 
 
 @app.route("/result")
@@ -287,8 +300,31 @@ def tutorial_management():
 
 
 @app.route("/admin-user-management")
+@login_required
+@roles_required(ADMIN_ROLE)
 def admin_user_management():
     return render_template("admin/user_management.html")
+
+
+@app.route("/admin-user-management/service-admin")
+@login_required
+@roles_required(ADMIN_ROLE)
+def service_admin_user_management():
+    return render_template("admin/service_admin_user_management.html")
+
+
+@app.route("/admin-user-management/teacher")
+@login_required
+@roles_required(ADMIN_ROLE)
+def teacher_user_management():
+    return render_template("admin/teacher_user_management.html")
+
+
+@app.route("/admin-user-management/student")
+@login_required
+@roles_required(ADMIN_ROLE)
+def student_user_management():
+    return render_template("admin/student_user_management.html")
 
 
 @app.route("/call-services")
@@ -304,64 +340,84 @@ def about():
 
 
 # APIs -----------------------------------------------------------------------------------------------------------------
-@app.route("/api/upload_curriculum", methods=["POST"])
+@app.route("/upload-curriculum", methods=["POST"])
 @login_required
 @roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
 def upload_curriculum():
-    class_name = request.form["class_name"]
-    class_obj = db.session.execute(db.select(Class).where(Class.name == class_name)).scalar()
+    try:
+        class_name = request.form["class_name"].strip()
+        subject_name = request.form["subject_name"].strip()
+        file = request.files.get("excel_file")
 
-    subject = request.form["subject"]
-    subject_obj = db.session.execute(db.select(Subject).where(Subject.name == subject)).scalar()
+        if not file or file.filename == "":
+            raise ValueError("No file uploaded")
 
-    file = request.files["excel_file"]
+        if not file.filename.endswith((".xlsx", ".xls")):
+            raise ValueError("Invalid file type")
 
-    # read excel
-    df = pd.read_csv(file)
+        df = pd.read_excel(file)
 
-    print(df)
-    for index, row in df.iterrows():
-        curriculum_date = str(row["Date"])
-        day, month, year = curriculum_date.split("/")
-        date_obj = date(day=int(day), month=int(month), year=int(year))
+        required_columns = {"Date", "Topic"}
+        if not required_columns.issubset(df.columns):
+            raise ValueError("Missing required columns")
 
-        # Deletes Previous Data
-        previous_records = db.session.execute(db.select(Curriculum).where(
-            (Curriculum.class_id == class_obj.id) & (Curriculum.subject_id == subject_obj.id))).scalars().all()
-        for previous_record in previous_records:
-            db.session.delete(previous_record)
+        records = []
 
-        topic = row["Topic"]
-        curriculum_obj = Curriculum(class_id=class_obj.id, subject_id=subject_obj.id, date=date_obj, topic=topic)
-        db.session.add(curriculum_obj)
-    db.session.commit()
+        for _, row in df.iterrows():
+            topic = row["Topic"]
 
-    return redirect(url_for("lesson_schedule"))
+            if pd.isna(topic):
+                continue
+
+            curriculum_date = pd.to_datetime(row["Date"], errors="coerce")
+            if pd.isna(curriculum_date):
+                continue
+
+            records.append(Curriculum(
+                class_name=class_name,
+                subject_name=subject_name,
+                date=curriculum_date,
+                topic=str(topic).strip()
+            ))
+
+        # Delete only AFTER validation
+        db.session.query(Curriculum).filter_by(
+            class_name=class_name,
+            subject_name=subject_name
+        ).delete()
+
+        db.session.bulk_save_objects(records)
+
+        db.session.commit()
+
+        return redirect(url_for("lesson_schedule", success=True))
+
+    except Exception as e:
+        db.session.rollback()
+        print("Upload Error:", e)  # replace with logging
+        return redirect(url_for("lesson_schedule", success=False))
 
 
 @app.route("/api/search-curriculum", methods=["POST"])
 @login_required
-@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
 def search_curriculum():
     data = request.json
     class_name = data["class"]
-    class_obj = db.session.execute(db.select(Class).where(Class.name == class_name)).scalar()
     lesson_schedule_date = data["date"]
     year, month, day = lesson_schedule_date.split("-")
     date_obj = date(day=int(day), month=int(month), year=int(year))
 
-    result = db.session.execute(
-        db.select(Curriculum).where(Curriculum.class_id == class_obj.id and Curriculum.date == date_obj))
+    result = db.session.query(Curriculum).filter_by(class_name=class_name, date=date_obj)
 
-    rows = result.scalars().all()
+    rows = result.all()
 
     results = []
 
     for r in rows:
         results.append({
             "id": r.id,
-            "class": r.class_.name,
-            "subject": r.subject.name,
+            "class": r.class_name,
+            "subject": r.subject_name,
             "date": r.date,
             "topic": r.topic,
         })
@@ -369,74 +425,43 @@ def search_curriculum():
     return {"data": results}
 
 
-@app.route("/api/update-curriculum", methods=["POST"])
-@login_required
-@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
-def update_curriculum():
-    data = request.json
-
-    lesson_schedule = db.session.get(Curriculum, int(data["id"]))
-    lesson_schedule.topic = data["topic"]
-    db.session.commit()
-
-    return {"status": "success"}
-
-
 @app.route("/api/upload-videos", methods=["POST"])
 @login_required
 @roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
 def upload_videos():
     class_name = request.form["class_name"]
-    class_obj = db.session.execute(db.select(Class).where(Class.name == class_name)).scalar()
-
     file = request.files["excel_file"]
 
-    # read excel
-    df = pd.read_csv(file)
+    df = pd.read_excel(file)
 
     for index, row in df.iterrows():
         video_id = str(row["ID"])
         video_link = row["Link"]
-        video_obj = Video(id=video_id, class_id=class_obj.id, link=video_link)
+        video_obj = Video(id=video_id, class_name=class_name, link=video_link)
         db.session.add(video_obj)
         db.session.commit()
 
-    return redirect(url_for("tutorial_management"))
+    return redirect(url_for("tutorial_management", success=True))
 
 
-@app.route("/api/get-video", methods=["POST"])
+@app.route("/api/search-video-links", methods=["POST"])
 @login_required
 @roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
-def get_video():
+def search_video_links():
     data = request.json
-    video_id = data["id"]
+    class_ = data["class"]
 
-    video = db.session.get(Video, video_id)
+    videos = db.session.query(Video).filter_by(class_name=class_).all()
 
-    if not video:
-        return jsonify({"success": False})
+    results = []
 
-    return jsonify({
-        "success": True,
-        "video": {
-            "id": video.id,
-            "video_link": video.link
-        }
-    })
+    for r in videos:
+        results.append({
+            "id": r.id,
+            "link": r.link,
+        })
 
-
-@app.route("/api/update-video", methods=["POST"])
-@login_required
-@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
-def update_video():
-    data = request.json
-
-    video = db.session.get(Video, data["video_id"])
-    video.link = data["video_link"]
-
-    db.session.commit()
-
-    return jsonify({"success": True})
+    return {"data": results}
 
 
 @app.route("/api/add-user", methods=["POST"])
@@ -460,7 +485,7 @@ def add_user():
     qr_code_access = data.get("qr_code", False)
 
     # Simple validation
-    if not school_id or not username or not password or not role or branch == "Select Branch":
+    if not school_id or not username or not password or not role:
         return jsonify({"success": False, "error": "Missing required fields"}), 400
 
     branch = db.session.execute(db.select(Branch).where(Branch.name == branch)).scalar()
@@ -481,6 +506,7 @@ def add_user():
 
     db.session.add(user)
     db.session.commit()
+
     return jsonify({"success": True})
 
 
@@ -613,32 +639,25 @@ def change_password():
     return {"success": True}
 
 
-@app.route('/api/upload-attendance', methods=['POST'])
+@app.route('/upload-attendance', methods=['POST'])
 def upload_attendance():
+    branch = request.form["branch_name"].strip()
+    class_ = request.form["class_name"].strip()
+    month = request.form["month_name"].strip()
     file = request.files['excel_file']
-    branch = request.form["branch_name"]
-    class_ = request.form["class_name"]
-    month = request.form["month_name"]
 
-    if not file:
-        return "No file uploaded"
+    if not file or file.filename == "":
+        raise ValueError("No file uploaded")
 
-    df = pd.read_csv(file)
-
-    # Expected columns
-    required_columns = ["ID", "Total Working Day", "Present", "Absent"]
-
-    for col in required_columns:
-        if col not in df.columns:
-            return f"Missing column: {col}"
+    df = pd.read_excel(file)
 
     for _, row in df.iterrows():
-        new_record = Attendance(
+        new_record = AttendanceRecord(
             branch=branch,
             class_name=class_,
             month=month,
             student_id=int(row["ID"]),
-            total_days=int(row["Total Working Day"]),
+            total_days=int(row["Total Working Days"]),
             present=int(row["Present"]),
             absent=int(row["Absent"]),
         )
@@ -646,7 +665,7 @@ def upload_attendance():
 
     db.session.commit()
 
-    return redirect(url_for("attendance"))
+    return redirect(url_for("attendance", success=True))
 
 
 @app.route("/api/search-attendance", methods=["POST"])
@@ -654,14 +673,17 @@ def search_attendance():
     data = request.json
 
     branch_name = data.get("branch")
-    class_name = data.get("month")
+    class_name = data.get("class")
     month = data.get("month")
+    student_id = data.get("student_id")
 
-    result = db.session.execute(
-        db.select(Attendance).where(
-            Attendance.branch == branch_name and Attendance.class_name == class_name and Attendance.month == month))
+    if student_id:
+        result = db.session.query(AttendanceRecord).filter_by(branch=branch_name, class_name=class_name, month=month,
+                                                              student_id=student_id)
+    else:
+        result = db.session.query(AttendanceRecord).filter_by(branch=branch_name, class_name=class_name, month=month)
 
-    rows = result.scalars().all()
+    rows = result.all()
 
     results = []
 
@@ -676,16 +698,13 @@ def search_attendance():
     return {"data": results}
 
 
-@app.route('/api/upload-accounts', methods=['POST'])
+@app.route('/upload-accounts', methods=['POST'])
 def upload_accounts():
     file = request.files['excel_file']
     branch = request.form["branch_name"]
     class_ = request.form["class_name"]
 
-    if not file:
-        return "No file uploaded"
-
-    df = pd.read_csv(file)
+    df = pd.read_excel(file)
 
     for _, row in df.iterrows():
         new_record = AccountsRecord(
@@ -710,22 +729,31 @@ def upload_accounts():
 
     db.session.commit()
 
-    return redirect(url_for("accounts"))
+    return redirect(url_for("accounts", success=True))
 
 
 @app.route('/api/search-accounts', methods=['POST'])
 def search_accounts():
-    data = request.json
+    data = request.get_json()
 
-    branch = data["branch"]
-    class_ = data["class"]
+    branch = data.get("branch")
+    class_ = data.get("class")
+    student_id = data.get("student_id")
 
-    accounts_records = db.session.execute(db.select(AccountsRecord).where(
-        AccountsRecord.branch == branch and AccountsRecord.class_name == class_)).scalars().fetchall()
+    query = db.session.query(AccountsRecord).filter_by(
+        branch=branch,
+        class_name=class_
+    )
+
+    if student_id:
+        query = query.filter_by(student_id=student_id)
+
+    accounts_records = query.all()
 
     results = []
+
     for accounts_record in accounts_records:
-        record = {
+        results.append({
             "ID": accounts_record.student_id,
             "january": accounts_record.january,
             "february": accounts_record.february,
@@ -739,10 +767,12 @@ def search_accounts():
             "october": accounts_record.october,
             "november": accounts_record.november,
             "december": accounts_record.december,
-        }
-        results.append(record)
+        })
 
-    return {"data": results}
+    return jsonify({
+        "success": True,
+        "data": results
+    })
 
 
 @app.route('/api/upload-semester-result', methods=['POST'])
@@ -752,10 +782,7 @@ def upload_semester_result():
     class_ = request.form["class_name"]
     exam = request.form["exam_name"]
 
-    if not file:
-        return "No file uploaded"
-
-    df = pd.read_csv(file)
+    df = pd.read_excel(file)
 
     for _, row in df.iterrows():
         new_record = SemesterResultRecord(
@@ -764,7 +791,6 @@ def upload_semester_result():
             exam_name=exam,
             student_id=int(row["ID"]),
             arabic=float(row["Arabic"]),
-            quran=float(row["Quran"]),
             bengali=float(row["Bengali"]),
             english=float(row["English"]),
             math=float(row["Math"]),
@@ -777,7 +803,7 @@ def upload_semester_result():
 
     db.session.commit()
 
-    return redirect(url_for("semester_assessment"))
+    return redirect(url_for("semester_assessment", success=True))
 
 
 @app.route('/api/search-semester-result', methods=['POST'])
@@ -787,15 +813,13 @@ def search_semester_result():
     class_ = data["class"]
     exam = data["exam"]
 
-    records = db.session.execute(db.select(SemesterResultRecord).where(
-        SemesterResultRecord.branch == branch and SemesterResultRecord.class_name == class_ and SemesterResultRecord.exam_name == exam)).scalars().all()
+    records = db.session.query(SemesterResultRecord).filter_by(branch=branch, class_name=class_, exam_name=exam).all()
 
     results = []
     for record in records:
         new_record = {
             "ID": record.student_id,
             "arabic": record.arabic,
-            "quran": record.quran,
             "bengali": record.bengali,
             "english": record.english,
             "math": record.math,
@@ -810,15 +834,12 @@ def search_semester_result():
 
 @app.route('/api/upload-class-result', methods=['POST'])
 def upload_class_result():
-    file = request.files['excel_file']
     branch = request.form["branch_name"]
     class_ = request.form["class_name"]
     month = request.form["month_name"]
+    file = request.files['excel_file']
 
-    if not file:
-        return "No file uploaded"
-
-    df = pd.read_csv(file)
+    df = pd.read_excel(file)
 
     for _, row in df.iterrows():
         new_record = ClassTestResultRecord(
@@ -837,8 +858,7 @@ def upload_class_result():
 
     db.session.commit()
 
-    return redirect(url_for("class_assessment"))
-
+    return redirect(url_for("class_assessment", success=True))
 
 
 @app.route('/api/search-class-result', methods=['POST'])
@@ -848,8 +868,7 @@ def search_class_result():
     class_ = data["class"]
     month = data["month"]
 
-    records = db.session.execute(db.select(ClassTestResultRecord).where(
-        ClassTestResultRecord.branch == branch and ClassTestResultRecord.class_name == class_ and ClassTestResultRecord.month == month)).scalars().all()
+    records = db.session.query(ClassTestResultRecord).filter_by(branch=branch, class_name=class_, month=month).all()
 
     results = []
     for record in records:
@@ -870,6 +889,10 @@ def search_class_result():
 @app.route("/video/<int:video_id>")
 @login_required
 def show_video(video_id):
+    if current_user.role == STUDENT_ROLE:
+        if str(current_user.school_id)[:1] != str(video_id[:1]):
+            abort(403)
+
     video = db.get_or_404(Video, video_id)
 
     return render_template(

@@ -162,6 +162,10 @@ with app.app_context():
     if not db.session.execute(db.select(User).where(User.username == 'al-aqsa-sharif')).scalar():
         branch = Branch(name="Netrakona", office_phone="01811114400", head_teacher_phone="01710500660")
         db.session.add(branch)
+        branch_1 = Branch(name="Purbadhala", office_phone="01811114400", head_teacher_phone="01710500660")
+        db.session.add(branch_1)
+        branch_1 = Branch(name="Kalmakanda", office_phone="01811114400", head_teacher_phone="01710500660")
+        db.session.add(branch_1)
         db.session.commit()
 
         admin = User(username='al-aqsa-sharif', branch_id=branch.id, role=ADMIN_ROLE, school_id=101)

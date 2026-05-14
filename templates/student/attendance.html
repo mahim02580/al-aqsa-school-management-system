@@ -69,9 +69,9 @@
         -webkit-overflow-scrolling: touch; /* smooth scroll on mobile */
         }
 
-        .attendance-table{
-            min-width:700px; /* or more depending on columns */
-        }
+<!--        .attendance-table{-->
+<!--            min-width:700px; /* or more depending on columns */-->
+<!--        }-->
 
         .attendance-table th,
         .attendance-table td{
@@ -131,10 +131,11 @@
         <div class="filter-card">
             <div class="row g-2">
                 <input type="hidden" id="studentID" class="form-select" value="{{current_user.school_id}}" required>
-                <input type="hidden" id="branchSelect" class="form-select" value="{{current_user.branch.name}}" required>
+                <input type="hidden" id="branchSelect" class="form-select" value="{{current_user.branch.name}}"
+                       required>
                 <input type="hidden" id="classSelect" class="form-select" value="{{student_class}}" required>
 
-                <div class="col-md-6">
+                <div class="col-md-8">
                     <select id="monthSelect" class="form-select" required>
                         <option>Select Month</option>
                         <option>January {{ year }}</option>
@@ -151,7 +152,7 @@
                         <option>December {{ year }}</option>
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <button id="searchBtn" class="btn btn-success w-100">
                         Search
                     </button>
@@ -163,14 +164,12 @@
         <div id="attendanceCard" class="attendance-card d-none">
             <div class="table-responsive">
                 <table class="table attendance-table align-middle">
-<!--                    <thead>-->
-<!--                    <tr>-->
-<!--                        <th style="width:10%;">ID</th>-->
-<!--                        <th style="width:30%;">Total Working Day</th>-->
-<!--                        <th style="width:30%;">Present</th>-->
-<!--                        <th style="width:30%;">Absent</th>-->
-<!--                    </tr>-->
-<!--                    </thead>-->
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
                     <tbody id="attendanceBody"></tbody>
                 </table>
             </div>
@@ -323,15 +322,23 @@
 
     tbody.innerHTML = ""
 
-    result.data.forEach(row=>{
+   result.data.forEach(row => {
+
+    let attendanceColumns = ""
+
+    for(let i = 1; i <= 31; i++){
+
+        const day = `d${i}`
+
+        attendanceColumns += `<tr>
+        <tr><td>${i}</td> <td>${ row[day] === "1" ? "✔" : row[day] === "0" ? "✗" : ""}</td></tr>
+        `
+    }
+
     tbody.innerHTML += `
-    <tr><td><b>Total Working Days :</b> ${row.total_days}</td></tr>
-    <tr><td><b>Present :</b> ${row.present}</td></tr>
-    <tr><td><b>Absent :</b> ${row.absent}</td></tr>
-
+        ${attendanceColumns}
     `
-
-    })
+})
     attachEditEvents()
     })
 

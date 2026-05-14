@@ -70,34 +70,82 @@
 <div class="container p-0">
     <!-- HEADER -->
     <div class="header">
-        <div class="title">User Management - Student</div>
+
+        <div class="d-flex align-items-center gap-2">
+
+            {% if current_user.role == "Admin" %}
+            <a href="{{ url_for('admin_dashboard') }}"
+               class="btn btn-light border rounded-3">
+                <i class="bi bi-house-door-fill"></i>
+            </a>
+
+            {% elif current_user.role == "Service Admin" %}
+            <a href="{{ url_for('service_admin_dashboard') }}"
+               class="btn btn-light border rounded-3">
+                <i class="bi bi-house-door-fill"></i>
+            </a>
+
+            {% elif current_user.role == "Teacher" %}
+            <a href="{{ url_for('teacher_dashboard') }}"
+               class="btn btn-light border rounded-3">
+                <i class="bi bi-house-door-fill"></i>
+            </a>
+
+            {% elif current_user.role == "Student" %}
+            <a href="{{ url_for('student_dashboard') }}"
+               class="btn btn-light border rounded-3">
+                <i class="bi bi-house-door-fill"></i>
+            </a>
+            {% endif %}
+
+            <div class="title">
+                User Management - Student
+            </div>
+
+        </div>
+
         <button class="btn btn-success"
                 data-bs-toggle="modal"
                 data-bs-target="#addUserModal">
             <i class="bi bi-plus-lg"></i>
         </button>
+
     </div>
 
     <div class="page" style="margin-top:90px;">
         <!-- FILTERS -->
         <div class="filter-card">
             <div class="row g-2">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <select id="branchFilter" class="form-select">
                         <option value="">Select Branch</option>
                         <option value="Netrakona">Netrakona</option>
                         <option value="Purbadhala">Purbadhala</option>
-                        <option value="Kolmakanda">Kalmakanda</option>
+                        <option value="Kalmakanda">Kalmakanda</option>
                     </select>
                 </div>
 
-                <div class="col-md-4">
+
+                <div class="col-md-3">
+                    <select id="classFilter" class="form-select">
+                        <option value="">Select Class</option>
+                        <option value="1">Play</option>
+                        <option value="2">Nursery</option>
+                        <option value="3">One</option>
+                        <option value="4">Two</option>
+                        <option value="5">Three</option>
+                        <option value="6">Four</option>
+                        <option value="7">Five</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
                     <input id="idFilter" type="text" placeholder="ID" class="form-control">
                 </div>
 
                 <input type="hidden" name="role" id="roleFilter" value="Student">
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <button id="searchBtn" class="btn btn-success w-100">Search</button>
                 </div>
             </div>
@@ -112,6 +160,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Username</th>
+                        <th>Branch</th>
                         <th class="text-end">Actions</th>
                     </tr>
                     </thead>
@@ -140,7 +189,7 @@
                         <select name="branch" class="form-select">
                             <option>Netrakona</option>
                             <option>Purbadhala</option>
-                            <option>Kolmakanda</option>
+                            <option>Kalmakanda</option>
                         </select>
                     </div>
 
@@ -159,44 +208,44 @@
                     <!-- ROLE BUTTON GROUP -->
                     <input type="hidden" name="role" id="admin" value="Student">
 
-<!--                    <label class="form-label">Option Permission</label>-->
-<!--                    <div class="row g-2 mb-3">-->
-<!--                        <div class="col-6">-->
-<!--                            <div class="form-check">-->
-<!--                                <input class="form-check-input" type="checkbox" name="options" value="lesson_schedule"-->
-<!--                                       id="opt_lesson">-->
-<!--                                <label class="form-check-label" for="opt_lesson">Lesson Schedule</label>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="col-6">-->
-<!--                            <div class="form-check">-->
-<!--                                <input class="form-check-input" type="checkbox" name="options" value="attendance"-->
-<!--                                       id="opt_attendance">-->
-<!--                                <label class="form-check-label" for="opt_attendance">Attendance</label>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="col-6">-->
-<!--                            <div class="form-check">-->
-<!--                                <input class="form-check-input" type="checkbox" name="options" value="accounts"-->
-<!--                                       id="opt_accounts">-->
-<!--                                <label class="form-check-label" for="opt_accounts">Accounts</label>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="col-6">-->
-<!--                            <div class="form-check">-->
-<!--                                <input class="form-check-input" type="checkbox" name="options" value="result"-->
-<!--                                       id="opt_result">-->
-<!--                                <label class="form-check-label" for="opt_result">Result</label>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="col-6">-->
-<!--                            <div class="form-check">-->
-<!--                                <input class="form-check-input" type="checkbox" name="options" value="qr_code"-->
-<!--                                       id="opt_qr">-->
-<!--                                <label class="form-check-label" for="opt_qr">QR Code</label>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
+                    <!--                    <label class="form-label">Option Permission</label>-->
+                    <!--                    <div class="row g-2 mb-3">-->
+                    <!--                        <div class="col-6">-->
+                    <!--                            <div class="form-check">-->
+                    <!--                                <input class="form-check-input" type="checkbox" name="options" value="lesson_schedule"-->
+                    <!--                                       id="opt_lesson">-->
+                    <!--                                <label class="form-check-label" for="opt_lesson">Lesson Schedule</label>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="col-6">-->
+                    <!--                            <div class="form-check">-->
+                    <!--                                <input class="form-check-input" type="checkbox" name="options" value="attendance"-->
+                    <!--                                       id="opt_attendance">-->
+                    <!--                                <label class="form-check-label" for="opt_attendance">Attendance</label>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="col-6">-->
+                    <!--                            <div class="form-check">-->
+                    <!--                                <input class="form-check-input" type="checkbox" name="options" value="accounts"-->
+                    <!--                                       id="opt_accounts">-->
+                    <!--                                <label class="form-check-label" for="opt_accounts">Accounts</label>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="col-6">-->
+                    <!--                            <div class="form-check">-->
+                    <!--                                <input class="form-check-input" type="checkbox" name="options" value="result"-->
+                    <!--                                       id="opt_result">-->
+                    <!--                                <label class="form-check-label" for="opt_result">Result</label>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="col-6">-->
+                    <!--                            <div class="form-check">-->
+                    <!--                                <input class="form-check-input" type="checkbox" name="options" value="qr_code"-->
+                    <!--                                       id="opt_qr">-->
+                    <!--                                <label class="form-check-label" for="opt_qr">QR Code</label>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
 
                     <button class="btn btn-success w-100 mt-2">Add User</button>
                 </form>
@@ -223,7 +272,7 @@
                         <select id="edit_branch" class="form-select">
                             <option>Netrakona</option>
                             <option>Purbadhala</option>
-                            <option>Kolmakanda</option>
+                            <option>Kalmakanda</option>
                         </select>
                     </div>
 
@@ -238,44 +287,44 @@
                     </div>
 
 
-<!--                    <label class="form-label">Option Permission</label>-->
-<!--                    <div class="row g-2 mb-3">-->
-<!--                        <div class="col-6">-->
-<!--                            <div class="form-check">-->
-<!--                                <input class="form-check-input" type="checkbox" name="options" value="lesson_schedule"-->
-<!--                                       id="edit_opt_lesson">-->
-<!--                                <label class="form-check-label" for="edit_opt_lesson">Lesson Schedule</label>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="col-6">-->
-<!--                            <div class="form-check">-->
-<!--                                <input class="form-check-input" type="checkbox" name="options" value="attendance"-->
-<!--                                       id="edit_opt_attendance">-->
-<!--                                <label class="form-check-label" for="edit_opt_attendance">Attendance</label>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="col-6">-->
-<!--                            <div class="form-check">-->
-<!--                                <input class="form-check-input" type="checkbox" name="options" value="accounts"-->
-<!--                                       id="edit_opt_accounts">-->
-<!--                                <label class="form-check-label" for="edit_opt_accounts">Accounts</label>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="col-6">-->
-<!--                            <div class="form-check">-->
-<!--                                <input class="form-check-input" type="checkbox" name="options" value="result"-->
-<!--                                       id="edit_opt_result">-->
-<!--                                <label class="form-check-label" for="edit_opt_result">Result</label>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="col-6">-->
-<!--                            <div class="form-check">-->
-<!--                                <input class="form-check-input" type="checkbox" name="options" value="qr_code"-->
-<!--                                       id="edit_opt_qr">-->
-<!--                                <label class="form-check-label" for="edit_opt_qr">QR Code</label>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
+                    <!--                    <label class="form-label">Option Permission</label>-->
+                    <!--                    <div class="row g-2 mb-3">-->
+                    <!--                        <div class="col-6">-->
+                    <!--                            <div class="form-check">-->
+                    <!--                                <input class="form-check-input" type="checkbox" name="options" value="lesson_schedule"-->
+                    <!--                                       id="edit_opt_lesson">-->
+                    <!--                                <label class="form-check-label" for="edit_opt_lesson">Lesson Schedule</label>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="col-6">-->
+                    <!--                            <div class="form-check">-->
+                    <!--                                <input class="form-check-input" type="checkbox" name="options" value="attendance"-->
+                    <!--                                       id="edit_opt_attendance">-->
+                    <!--                                <label class="form-check-label" for="edit_opt_attendance">Attendance</label>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="col-6">-->
+                    <!--                            <div class="form-check">-->
+                    <!--                                <input class="form-check-input" type="checkbox" name="options" value="accounts"-->
+                    <!--                                       id="edit_opt_accounts">-->
+                    <!--                                <label class="form-check-label" for="edit_opt_accounts">Accounts</label>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="col-6">-->
+                    <!--                            <div class="form-check">-->
+                    <!--                                <input class="form-check-input" type="checkbox" name="options" value="result"-->
+                    <!--                                       id="edit_opt_result">-->
+                    <!--                                <label class="form-check-label" for="edit_opt_result">Result</label>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="col-6">-->
+                    <!--                            <div class="form-check">-->
+                    <!--                                <input class="form-check-input" type="checkbox" name="options" value="qr_code"-->
+                    <!--                                       id="edit_opt_qr">-->
+                    <!--                                <label class="form-check-label" for="edit_opt_qr">QR Code</label>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
 
                     <button class="btn btn-success w-100">Update</button>
                 </form>
@@ -366,13 +415,14 @@
 
     const branch=document.getElementById("branchFilter").value
     const role=document.getElementById("roleFilter").value
+    const studentClass=document.getElementById("classFilter").value
     const id=document.getElementById("idFilter").value
 
     const res=await fetch("/api/search-users",{
 
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({branch,role,id})
+    body:JSON.stringify({branch,role, studentClass, id})
 
     })
 
@@ -389,6 +439,7 @@
     <tr>
         <td>${u.id}</td>
         <td>${u.username}</td>
+        <td>${u.branch}</td>
         <td class="text-end">
 
             <button class="btn btn-light btn-sm me-1" onclick="openPassword('${u.db_id}')">

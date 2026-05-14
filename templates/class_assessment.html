@@ -84,6 +84,7 @@
         }
 
         .class-result-table td{
+        font-size:11px;
         vertical-align:middle;
         }
 
@@ -118,23 +119,95 @@
 </head>
 
 <body>
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:9999;">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+
+    {% for category, message in messages %}
+
+    <div class="toast align-items-center text-bg-{{ category }} border-0 show mb-2"
+         role="alert">
+
+        <div class="d-flex">
+
+            <div class="toast-body">
+                {{ message }}
+            </div>
+
+            <button type="button"
+                    class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast">
+            </button>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+    {% endif %}
+    {% endwith %}
+
+</div>
+
 <div class="container p-0">
     <!-- HEADER -->
     <div class="header">
-        <div class="title">Class Assessment</div>
+
+        <div class="d-flex align-items-center gap-2">
+
+            {% if current_user.role == "Admin" %}
+            <a href="{{ url_for('admin_dashboard') }}"
+               class="btn btn-light border rounded-3">
+                <i class="bi bi-house-door-fill"></i>
+            </a>
+
+            {% elif current_user.role == "Service Admin" %}
+            <a href="{{ url_for('service_admin_dashboard') }}"
+               class="btn btn-light border rounded-3">
+                <i class="bi bi-house-door-fill"></i>
+            </a>
+
+            {% elif current_user.role == "Teacher" %}
+            <a href="{{ url_for('teacher_dashboard') }}"
+               class="btn btn-light border rounded-3">
+                <i class="bi bi-house-door-fill"></i>
+            </a>
+
+            {% elif current_user.role == "Student" %}
+            <a href="{{ url_for('student_dashboard') }}"
+               class="btn btn-light border rounded-3">
+                <i class="bi bi-house-door-fill"></i>
+            </a>
+            {% endif %}
+
+            <div class="title">
+                Result Management - Class Assessment
+            </div>
+
+        </div>
 
         {% if current_user.role not in ("Student", "Teacher") %}
-        <button class="btn btn-success add-btn" data-bs-toggle="modal" data-bs-target="#uploadModal">
+        <button class="btn btn-success add-btn"
+                data-bs-toggle="modal"
+                data-bs-target="#uploadModal">
+
             <i class="bi bi-plus-lg"></i>
+
         </button>
         {% endif %}
+
     </div>
 
     <div class="page">
         <!-- FILTERS -->
         <div class="filter-card">
             <div class="row g-2">
-                <div class="col-md-3">
+                {% if current_user.role in ("Service Admin", "Teacher") %}
+                <input type="hidden" id="branchSelect" value="{{current_user.branch.name}}">
+                {% else %}
+                <div class="col-md">
                     <select id="branchSelect" class="form-select" required>
                         <option>Select Branch</option>
                         <option>Netrakona</option>
@@ -142,7 +215,8 @@
                         <option>Kalmakanda</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                {% endif %}
+                <div class="col-md">
                     <select id="classSelect" class="form-select" required>
                         <option>Select Class</option>
                         <option>Play</option>
@@ -155,7 +229,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md">
                     <select id="monthSelect" class="form-select" required>
                         <option>Select Month</option>
                         <option>January {{ year }}</option>
@@ -188,12 +262,17 @@
                 <table class="table class-result-table align-middle">
                     <thead>
                     <tr>
-                        <th style="width:25%;">ID</th>
-                        <th style="width:15%;">Arabic</th>
-                        <th style="width:15%;">Bengali</th>
-                        <th style="width:15%;">English</th>
-                        <th style="width:15%;">Math</th>
-                        <th style="width:15%;">Total</th>
+                        <th>ID</th>
+                        <th>Student Name</th>
+                        <th>Arabic</th>
+                        <th>Quran</th>
+                        <th>Bengali</th>
+                        <th>English</th>
+                        <th>Math</th>
+                        <th>Aqaid & Fiqh</th>
+                        <th>Science</th>
+                        <th>BGS</th>
+                        <th>Total</th>
                     </tr>
                     </thead>
                     <tbody id="class-resultBody"></tbody>
@@ -215,6 +294,10 @@
 
                 <div class="modal-body">
                     <form  method="POST" action="{{ url_for('upload_class_result') }}" enctype="multipart/form-data">
+
+                        {% if current_user.role in ("Service Admin", "Teacher") %}
+                        <input type="hidden" name="branch_name" value="{{current_user.branch.name}}">
+                        {% else %}
                         <div class="mb-3">
                             <label class="form-label">Branch</label>
                             <select name="branch_name" class="form-select">
@@ -223,6 +306,7 @@
                                 <option>Kalmakanda</option>
                             </select>
                         </div>
+                        {% endif %}
 
                         <div class="mb-3">
                             <label class="form-label">Class</label>
@@ -256,7 +340,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Upload Excel (Must contain 'ID', 'Arabic', 'Bengali', 'English', 'Math' & 'Total' Column)</label>
+                            <label class="form-label">Upload Excel (Must contain 'ID', 'Student Name', 'Arabic', 'Quran', 'Bengali', 'English', 'Math' & 'Total' Column)</label>
                             <input type="file" name="excel_file" accept=".xlsx,.xls" class="form-control" required>
                         </div>
 
@@ -322,12 +406,17 @@
     result.data.forEach(row=>{
     tbody.innerHTML += `
     <tr>
-        <td>${row.ID}</td>
-        <td>${row.arabic}</td>
-        <td>${row.bengali}</td>
-        <td>${row.english}</td>
-        <td>${row.math}</td>
-        <td>${row.total}</td>
+         <td>${row.ID}</td>
+        <td>${row.student_name}</td>
+        <td>${row.arabic ?? ""}</td>
+        <td>${row.quran ?? ""}</td>
+        <td>${row.bengali ?? ""}</td>
+        <td>${row.english ?? ""}</td>
+        <td>${row.math ?? ""}</td>
+        <td>${row.aqaid_and_fiqh ?? ""}</td>
+        <td>${row.science ?? ""}</td>
+        <td>${row.bgs ?? ""}</td>
+        <td>${row.total ?? ""}</td>
     </tr>
     `
 

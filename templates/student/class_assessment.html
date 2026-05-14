@@ -293,16 +293,36 @@
     }
 
 
-    result.data.forEach(row=>{
-    tbody.innerHTML += `
-        <tr><td>Arabic: </td><td>${row.arabic}</td></tr>
-        <tr><td>Bengali: </td><td>${row.bengali}</td></tr>
-        <tr><td>English: </td><td>${row.english}</td></tr>
-        <tr><td>Math: </td><td>${row.math}</td></tr>
-        <tr><td>Total: </td><td>${row.total}</td></tr>
-    `
+     result.data.forEach(row => {
 
-    })
+    const firstChar = Number(row.ID.toString()[0])
+    console.log(firstChar)
+    if(firstChar >= 1 && firstChar <= 4){
+
+        tbody.innerHTML += `
+        <tr><td>Arabic:</td><td>${row.arabic}</td></tr>
+        <tr><td>Bengali:</td><td>${row.bengali}</td></tr>
+        <tr><td>English:</td><td>${row.english}</td></tr>
+        <tr><td>Math:</td><td>${row.math}</td></tr>
+        <tr><td>Total:</td><td>${row.total}</td></tr>
+        `
+
+    }else{
+
+        tbody.innerHTML += `
+        <tr><td>Arabic:</td><td>${row.arabic}</td></tr>
+        <tr><td>Quran:</td><td>${row.quran}</td></tr>
+        <tr><td>Bengali:</td><td>${row.bengali}</td></tr>
+        <tr><td>English:</td><td>${row.english}</td></tr>
+        <tr><td>Math:</td><td>${row.math}</td></tr>
+        <tr><td>Aqaid & Fiqh:</td><td>${row.aqaid_and_fiqh}</td></tr>
+        <tr><td>Science:</td><td>${row.science}</td></tr>
+        <tr><td>BGS:</td><td>${row.bgs}</td></tr>
+        <tr><td>Total:</td><td>${row.total}</td></tr>
+        `
+    }
+
+})
     attachEditEvents()
     })
 

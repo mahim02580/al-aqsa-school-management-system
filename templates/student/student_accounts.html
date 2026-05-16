@@ -129,15 +129,14 @@
         <input type="hidden" id="classSelect" class="form-select" value="{{student_class}}" required>
 
 
-
         <!-- ACCOUNTS TABLE -->
         <div id="accountsCard" class="accounts-card">
             <div class="table-responsive">
                 <table class="table accounts-table align-middle">
                     <thead>
                     <tr>
-                        <th >Month</th>
-                        <th >Amount</th>
+                        <th>Month</th>
+                        <th>Amount</th>
 
                     </tr>
                     </thead>
@@ -202,67 +201,67 @@
 
                 tbody.innerHTML += `
                     <tr>
-                        <td><b>January:</b></td>
+                        <td><b>জানুয়ারী:</b></td>
                         <td>${row.january ?? ""}</td>
                     </tr>
 
                     <tr>
-                        <td><b>February:</b></td>
+                        <td><b>ফেব্রুয়ারী:</b></td>
                         <td>${row.february ?? ""}</td>
                     </tr>
 
                     <tr>
-                        <td><b>March:</b></td>
+                        <td><b>মার্চ:</b></td>
                         <td>${row.march ?? ""}</td>
                     </tr>
 
                     <tr>
-                        <td><b>April:</b></td>
+                        <td><b>এপ্রিল:</b></td>
                         <td>${row.april ?? ""}</td>
                     </tr>
 
                     <tr>
-                        <td><b>May:</b></td>
+                        <td><b>মে:</b></td>
                         <td>${row.may ?? ""}</td>
                     </tr>
 
                     <tr>
-                        <td><b>June:</b></td>
+                        <td><b>জুন:</b></td>
                         <td>${row.june ?? ""}</td>
                     </tr>
 
                     <tr>
-                        <td><b>July:</b></td>
+                        <td><b>জুলাই:</b></td>
                         <td>${row.july ?? ""}</td>
                     </tr>
 
                     <tr>
-                        <td><b>August:</b></td>
+                        <td><b>আগস্ট:</b></td>
                         <td>${row.august ?? ""}</td>
                     </tr>
 
                     <tr>
-                        <td><b>September:</b></td>
+                        <td><b>সেপ্টেম্বর:</b></td>
                         <td>${row.september ?? ""}</td>
                     </tr>
 
                     <tr>
-                        <td><b>October:</b></td>
+                        <td><b>অক্টোবর:</b></td>
                         <td>${row.october ?? ""}</td>
                     </tr>
 
                     <tr>
-                        <td><b>November:</b></td>
+                        <td><b>নভেম্বর:</b></td>
                         <td>${row.november ?? ""}</td>
                     </tr>
 
                     <tr>
-                        <td><b>December:</b></td>
+                        <td><b>ডিসেম্বর:</b></td>
                         <td>${row.december ?? ""}</td>
                     </tr>
                      <tr>
-                        <td><b>Due:</b></td>
-                        <td>${row.due ?? ""}</td>
+                        <td style="color:red;"><b>বকেয়া:</b></td>
+                        <td style="color:red;">${row.due ?? ""}</td>
                     </tr>
                 `;
             });

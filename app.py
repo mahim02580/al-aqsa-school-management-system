@@ -52,7 +52,7 @@ class User(db.Model, UserMixin):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     school_id: Mapped[int] = mapped_column(nullable=False)
-    username: Mapped[str] = mapped_column(nullable=False)
+    username: Mapped[str] = mapped_column(unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(nullable=False)
     role: Mapped[str] = mapped_column(nullable=False)  # Admin, Teacher, Guardian
     branch_id: Mapped[int] = mapped_column(ForeignKey("branches.id"))

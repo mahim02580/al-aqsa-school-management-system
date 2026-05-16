@@ -1111,7 +1111,7 @@ def search_class_result():
     results = []
     for record in records:
         new_record = {
-            "ID": helpers.convert_bangla_text(record.student_id),
+            "ID": record.student_id,
             "student_name": record.student_name,
             "arabic": helpers.convert_bangla_text(record.arabic),
             "quran": helpers.convert_bangla_text(record.quran),

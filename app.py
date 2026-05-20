@@ -400,6 +400,11 @@ def student_user_management():
     return render_template("admin/student_user_management.html")
 
 
+@app.route("/notice-board-management")
+@login_required
+def notice_board_management():
+    return render_template("notice_board_management.html")
+
 @app.route("/call-services")
 @login_required
 def call_services():

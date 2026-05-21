@@ -197,6 +197,11 @@ class ClassTestResultRecord(db.Model):
     total: Mapped[float] = mapped_column(nullable=True)
 
 
+class Notice(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    notice_link: Mapped[str] = mapped_column()
+
+
 # End of DB Models------------------------------------------------------------------------------------------------------
 
 with app.app_context():
@@ -300,7 +305,6 @@ def accounts():
     return render_template("accounts.html")
 
 
-
 @app.route("/student-accounts")
 @login_required
 def student_accounts():
@@ -315,7 +319,6 @@ def result():
     return render_template("result.html")
 
 
-
 @app.route("/student-result")
 @login_required
 def student_result():
@@ -326,7 +329,6 @@ def student_result():
 @login_required
 def semester_assessment():
     return render_template("semester_assessment.html", year=datetime.now().strftime("%Y"))
-
 
 
 @app.route("/student-result/semester-assessment")
@@ -341,7 +343,6 @@ def student_semester_assessment():
 @login_required
 def class_assessment():
     return render_template("class_assessment.html", year=datetime.now().strftime("%Y"))
-
 
 
 @app.route("/student-result/class-assessment")
@@ -403,7 +404,9 @@ def student_user_management():
 @app.route("/notice-board-management")
 @login_required
 def notice_board_management():
-    return render_template("notice_board_management.html")
+    notices = db.session.query(Notice).all()
+    return render_template("notice_board_management.html", notices=notices)
+
 
 @app.route("/call-services")
 @login_required
@@ -819,7 +822,7 @@ def search_attendance():
             "student_name": r.student_name,
         }
         for i in range(31):
-            record[f"d{i+1}"] = r.__getattribute__(f"d{i+1}")
+            record[f"d{i + 1}"] = r.__getattribute__(f"d{i + 1}")
         results.append(record)
 
     return {"data": results}
@@ -1021,7 +1024,7 @@ def search_semester_result():
             "bengali": helpers.convert_bangla_text(record.bengali),
             "english": helpers.convert_bangla_text(record.english),
             "math": helpers.convert_bangla_text(record.math),
-            "science":helpers.convert_bangla_text(record.science),
+            "science": helpers.convert_bangla_text(record.science),
             "bgs": helpers.convert_bangla_text(record.bgs),
             "class_test": helpers.convert_bangla_text(record.class_test),
             "presence": helpers.convert_bangla_text(record.presence),
@@ -1131,6 +1134,21 @@ def search_class_result():
         results.append(new_record)
 
     return {"data": results}
+
+
+@app.route('/api/upload-notice', methods=['POST'])
+def upload_notice():
+    try:
+        img_link = request.form["img_link"]
+        new_notice = Notice(notice_link=img_link)
+        db.session.add(new_notice)
+        db.session.commit()
+        flash("Notice uploaded successfully.", "success")
+        return redirect(url_for("notice_board_management"))
+    except Exception as e:
+        db.session.rollback()
+        flash(str(e), "danger")
+        return redirect(url_for("notice_board_management"))
 
 
 # Others ---------------------------------------------------------------------------------------------------------------

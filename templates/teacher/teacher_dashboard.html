@@ -129,6 +129,7 @@
         .result{background:linear-gradient(135deg,#c084fc,#9333ea);}
         .call{background:linear-gradient(135deg,#22d3ee,#0891b2);}
         .about{background:linear-gradient(135deg,#94a3b8,#64748b);}
+        .notice{background:linear-gradient(135deg,#f97316,#ea580c);}
         .qr{background:linear-gradient(135deg,#fb7185,#e11d48);}
         .users{background:linear-gradient(135deg,#a78bfa,#6d28d9);}
 
@@ -244,7 +245,7 @@
     <!-- DASHBOARD -->
 
     <div class="dashboard">
-       <a href="{{ url_for('lesson_schedule') }}" class="card-link">
+        <a href="{{ url_for('lesson_schedule') }}" class="card-link">
             <div class="card-btn">
                 <div class="icon-circle schedule"><i class="bi bi-journal-text"></i></div>
                 <div class="card-title">Lesson Schedule</div>
@@ -269,6 +270,13 @@
             <div class="card-btn">
                 <div class="icon-circle qr"><i class="bi bi-qr-code-scan"></i></div>
                 <div class="card-title">QR Code Scanner</div>
+            </div>
+        </a>
+
+        <a href="{{ url_for('notice_board_management') }}" class="card-link">
+            <div class="card-btn">
+                <div class="icon-circle notice"><i class="bi bi-megaphone-fill"></i></div>
+                <div class="card-title">Notice Board</div>
             </div>
         </a>
 

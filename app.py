@@ -267,7 +267,8 @@ def teacher_dashboard():
 @login_required
 @roles_required(STUDENT_ROLE)
 def student_dashboard():
-    return render_template('student/student_dashboard.html')
+    all_notices = db.session.query(Notice).all()
+    return render_template('student/student_dashboard.html', notice=all_notices[-1])
 
 
 # Options --------------------------------------------------------------------------------------------------------------

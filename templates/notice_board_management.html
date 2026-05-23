@@ -248,6 +248,19 @@ border-radius:10px;
                     <div class="modal-body">
                         <form method="POST" action="{{ url_for('upload_notice') }}" enctype="multipart/form-data">
 
+                            {% if current_user.role in ("Service Admin",) %}
+                            <input type="hidden" name="branch_name" value="{{current_user.branch.name}}">
+                            {% else %}
+                            <div class="mb-3">
+                                <label class="form-label">Branch</label>
+                                <select name="branch_name" class="form-select">
+                                    <option>Netrakona</option>
+                                    <option>Purbadhala</option>
+                                    <option>Kalmakanda</option>
+                                </select>
+                            </div>
+                            {% endif %}
+
                             <div class="mb-3">
                                 <label class="form-label">Notice Image Link</label>
                                 <input name="img_link" class="form-control">

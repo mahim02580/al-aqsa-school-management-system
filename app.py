@@ -200,6 +200,7 @@ class ClassTestResultRecord(db.Model):
 class Notice(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     notice_link: Mapped[str] = mapped_column()
+    branch: Mapped[str] = mapped_column()
 
 
 # End of DB Models------------------------------------------------------------------------------------------------------
@@ -267,8 +268,7 @@ def teacher_dashboard():
 @login_required
 @roles_required(STUDENT_ROLE)
 def student_dashboard():
-    all_notices = db.session.query(Notice).all()
-    return render_template('student/student_dashboard.html', notice=all_notices[-1])
+    return render_template('student/student_dashboard.html')
 
 
 # Options --------------------------------------------------------------------------------------------------------------
@@ -405,8 +405,9 @@ def student_user_management():
 @app.route("/notice-board-management")
 @login_required
 def notice_board_management():
-    notices = db.session.query(Notice).all()
-    return render_template("notice_board_management.html", notices=notices)
+    branch = current_user.branch.name
+    notices = db.session.query(Notice).filter_by(branch=branch).all()[::-1]
+    return render_template("notice_board_management.html", notices=notices[:3])
 
 
 @app.route("/call-services")
@@ -1141,7 +1142,8 @@ def search_class_result():
 def upload_notice():
     try:
         img_link = request.form["img_link"]
-        new_notice = Notice(notice_link=img_link)
+        branch = request.form["branch_name"]
+        new_notice = Notice(notice_link=img_link, branch=branch)
         db.session.add(new_notice)
         db.session.commit()
         flash("Notice uploaded successfully.", "success")

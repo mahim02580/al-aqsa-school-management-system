@@ -8,8 +8,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from decorators import roles_required
 from dotenv import load_dotenv
 import pandas as pd
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta, datetime, timezone
 import helpers
+from zoneinfo import ZoneInfo
 
 load_dotenv()
 
@@ -206,7 +207,7 @@ class Notice(db.Model):
 class LogInfo(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column()
-    login_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    login_time: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Dhaka")))
 
 
 # End of DB Models------------------------------------------------------------------------------------------------------
@@ -1175,7 +1176,6 @@ def upload_notice():
 @login_required
 @roles_required(ADMIN_ROLE)
 def search_login_info():
-
     data = request.json
     selected_date = data["date"]
     logs = db.session.query(LogInfo).all()

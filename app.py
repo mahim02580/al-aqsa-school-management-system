@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, jsonify
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import ForeignKey, Date
+from sqlalchemy import ForeignKey, Date, DateTime, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from decorators import roles_required
@@ -203,6 +203,12 @@ class Notice(db.Model):
     branch: Mapped[str] = mapped_column()
 
 
+class LogInfo(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column()
+    login_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+
+
 # End of DB Models------------------------------------------------------------------------------------------------------
 
 with app.app_context():
@@ -233,6 +239,9 @@ def login():
         user = db.session.execute(db.select(User).where(User.username == username)).scalar()
 
         if user and user.check_password(password):
+            log = LogInfo(username=user.username)
+            db.session.add(log)
+            db.session.commit()
             login_user(user, duration=timedelta(hours=3))
             return helpers.redirect_dashboard(user.role)
 
@@ -408,6 +417,14 @@ def notice_board_management():
     branch = current_user.branch.name
     notices = db.session.query(Notice).filter_by(branch=branch).all()[::-1]
     return render_template("notice_board_management.html", notices=notices[:3])
+
+
+@app.route("/log-info")
+@login_required
+@roles_required(ADMIN_ROLE)
+def log_info():
+    log_infos = db.session.query(LogInfo).all()[::-1]
+    return render_template("admin/log_info.html", log_infos=log_infos)
 
 
 @app.route("/call-services")
@@ -1152,6 +1169,32 @@ def upload_notice():
         db.session.rollback()
         flash(str(e), "danger")
         return redirect(url_for("notice_board_management"))
+
+
+@app.route("/api/search-log-info", methods=["POST"])
+@login_required
+@roles_required(ADMIN_ROLE)
+def search_login_info():
+
+    data = request.json
+    selected_date = data["date"]
+    logs = db.session.query(LogInfo).all()
+
+    log_infos = db.session.query(LogInfo).filter(
+        func.date(LogInfo.login_time) == selected_date
+    ).order_by(LogInfo.login_time.desc()).all()
+
+    results = []
+
+    for log in log_infos:
+        results.append({
+            "username": log.username,
+            "login_time": log.login_time.strftime("%d-%m-%Y %I:%M %p")
+        })
+
+    return jsonify({
+        "data": results
+    })
 
 
 # Others ---------------------------------------------------------------------------------------------------------------

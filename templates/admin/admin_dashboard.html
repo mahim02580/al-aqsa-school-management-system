@@ -127,6 +127,7 @@
         .call{background:linear-gradient(135deg,#22d3ee,#0891b2);}
         .about{background:linear-gradient(135deg,#94a3b8,#64748b);}
         .notice{background:linear-gradient(135deg,#f97316,#ea580c);}
+        .log-info{background:linear-gradient(135deg,#0ea5e9,#0369a1);}
         .qr{background:linear-gradient(135deg,#fb7185,#e11d48);}
         .users{background:linear-gradient(135deg,#a78bfa,#6d28d9);}
 
@@ -283,6 +284,13 @@
             <div class="card-btn">
                 <div class="icon-circle notice"><i class="bi bi-megaphone-fill"></i></div>
                 <div class="card-title">Notice Board Management</div>
+            </div>
+        </a>
+
+            <a href="{{ url_for('log_info') }}" class="card-link">
+            <div class="card-btn">
+                <div class="icon-circle log-info"><i class="bi bi-person-lines-fill"></i></div>
+                <div class="card-title">Log Info</div>
             </div>
         </a>
 

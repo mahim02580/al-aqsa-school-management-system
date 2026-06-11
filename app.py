@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from decorators import roles_required
 from dotenv import load_dotenv
 import pandas as pd
-from datetime import date, timedelta, datetime, timezone
+from datetime import date, timedelta, datetime
 import helpers
 from zoneinfo import ZoneInfo
 
@@ -208,6 +208,13 @@ class LogInfo(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column()
     login_time: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Dhaka")))
+
+
+class PhoneNumber(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    branch_name: Mapped[str] = mapped_column()
+    name: Mapped[str] = mapped_column()
+    phone_number: Mapped[str] = mapped_column()
 
 
 # End of DB Models------------------------------------------------------------------------------------------------------
@@ -431,7 +438,8 @@ def log_info():
 @app.route("/call-services")
 @login_required
 def call_services():
-    return render_template("call_service.html")
+    phone_numbers = db.session.query(PhoneNumber).filter_by(branch_name=current_user.branch.name).all()
+    return render_template("call_service.html", phone_numbers=phone_numbers)
 
 
 @app.route("/about")
@@ -1195,6 +1203,23 @@ def search_login_info():
     return jsonify({
         "data": results
     })
+
+
+@app.route('/api/upload-phone-number', methods=['POST'])
+def upload_phone_number():
+    try:
+        branch_name = request.form["branch_name"]
+        name = request.form["name"]
+        phone_number = request.form["phone_number"]
+        new_phone_number = PhoneNumber(branch_name=branch_name, name=name, phone_number=phone_number)
+        db.session.add(new_phone_number)
+        db.session.commit()
+        flash("Phone number uploaded successfully.", "success")
+        return redirect(url_for("call_services"))
+    except Exception as e:
+        db.session.rollback()
+        flash(str(e), "danger")
+        return redirect(url_for("call_services"))
 
 
 # Others ---------------------------------------------------------------------------------------------------------------

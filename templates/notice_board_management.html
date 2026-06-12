@@ -225,15 +225,12 @@ border-radius:10px;
     </div>
 
     <div class="page">
-        {% for notice in notices %}
 
         <div class="notice-wrapper">
-            <img src="{{notice.notice_link}}" class="notice-img" alt="Notice Image">
+            <img src="{{src}}" class="notice-img" alt="Notice Image">
         </div>
 
-        <hr>
 
-        {% endfor %}
         <!-- UPLOAD MODAL -->
         <div class="modal fade" id="uploadModal">
             <div class="modal-dialog modal-dialog-centered">
@@ -262,8 +259,8 @@ border-radius:10px;
                             {% endif %}
 
                             <div class="mb-3">
-                                <label class="form-label">Notice Image Link</label>
-                                <input name="img_link" class="form-control">
+                                <label class="form-label">Notice Image</label>
+                                <input type="file" accept=".png,.jpeg,.jpg" name="img" class="form-control">
                             </div>
 
 

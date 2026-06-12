@@ -422,9 +422,8 @@ def student_user_management():
 @app.route("/notice-board-management")
 @login_required
 def notice_board_management():
-    branch = current_user.branch.name
-    notices = db.session.query(Notice).filter_by(branch=branch).all()[::-1]
-    return render_template("notice_board_management.html", notices=notices[:3])
+    img_source_link = f"static/img/notices/{current_user.branch.name}/notice.png"
+    return render_template("notice_board_management.html", src=img_source_link)
 
 
 @app.route("/log-info")
@@ -1167,11 +1166,9 @@ def search_class_result():
 @app.route('/api/upload-notice', methods=['POST'])
 def upload_notice():
     try:
-        img_link = request.form["img_link"]
+        img = request.files["img"]
         branch = request.form["branch_name"]
-        new_notice = Notice(notice_link=img_link, branch=branch)
-        db.session.add(new_notice)
-        db.session.commit()
+        img.save(f"static/img/notices/{branch}/notice.png")
         flash("Notice uploaded successfully.", "success")
         return redirect(url_for("notice_board_management"))
     except Exception as e:

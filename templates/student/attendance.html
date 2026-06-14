@@ -332,7 +332,7 @@
         const day = `d${i}`
 
         attendanceColumns += `<tr>
-        <tr><td>${i}</td> <td>${ row[day] === "1" ? "✔" : row[day] === "0" ? "✗" : ""}</td></tr>
+        <tr><td>${i}</td> <td>${ row[day] === "1" ? "✔" : row[day] === "0" ? "✗" : row[day] === null ? "" : row[day]}</td></tr>
         `
     }
 

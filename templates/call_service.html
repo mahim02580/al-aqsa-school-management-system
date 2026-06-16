@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <title>Phonebook</title>
+    <title>Call Service</title>
 
     <link href="{{url_for('static', filename='img/al-aqsa-icon.jpg')}}" rel="icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -139,6 +139,17 @@ border-radius:10px;
 }
 
 }
+        .btn.rounded-circle {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn.rounded-circle i {
+    font-size: 0.7rem;
+}
     </style>
 </head>
 
@@ -207,7 +218,7 @@ border-radius:10px;
             {% endif %}
 
             <div class="title">
-                Phonebook
+                Call Service
             </div>
 
         </div>
@@ -231,7 +242,39 @@ border-radius:10px;
 
                     <tbody id="accountsBody">
                     {% for phone_number in phone_numbers %}
-                        <tr><td>{{phone_number.name}} </td><td>:</td><td>{{ phone_number.phone_number }}</td></tr>
+                    <tr>
+                        <td>{{ phone_number.name }}</td>
+                        <td>:</td>
+                        <td>{{ phone_number.phone_number }}</td>
+
+                        <!-- Call -->
+                        <td>
+                            <a href="tel:{{phone_number.phone_number}}"
+                               class="btn btn-dark btn-sm rounded-circle"
+                               title="Call">
+                                <i class="bi bi-telephone-fill"></i>
+                            </a>
+                        </td>
+
+                        <!-- SMS -->
+                        <td>
+                            <a href="sms:{{phone_number.phone_number}}"
+                               class="btn btn-primary btn-sm rounded-circle"
+                               title="Message">
+                                <i class="bi bi-chat-dots-fill"></i>
+                            </a>
+                        </td>
+
+                        <!-- WhatsApp -->
+                        <td>
+                            <a href="https://wa.me/88{{phone_number.phone_number}}"
+                               target="_blank"
+                               class="btn btn-success btn-sm rounded-circle"
+                               title="WhatsApp">
+                                <i class="bi bi-whatsapp"></i>
+                            </a>
+                        </td>
+                    </tr>
                     {% endfor %}
                     </tbody>
                 </table>

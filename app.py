@@ -197,7 +197,6 @@ class ClassTestResultRecord(db.Model):
     bgs: Mapped[float] = mapped_column(nullable=True)
     total: Mapped[float] = mapped_column(nullable=True)
 
-
 class Notice(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     notice_link: Mapped[str] = mapped_column()
@@ -367,8 +366,13 @@ def class_assessment():
 @login_required
 def student_class_assessment():
     student_class = CLASS_MAP[int(str(current_user.school_id)[:1])]
+    records = db.session.query(ClassTestResultRecord).all()
+    uploaded_months = []
+    for record in records:
+        if record.month not in uploaded_months:
+            uploaded_months.append(record.month)
     return render_template("student/class_assessment.html", student_class=student_class,
-                           year=datetime.now().strftime("%Y"))
+                           year=datetime.now().strftime("%Y"), months=uploaded_months)
 
 
 @app.route("/qr-code-management")

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <title>Class Assessment</title>
+    <title>শ্রেণী মূল্যায়ন</title>
 
     <link href="{{url_for('static', filename='img/al-aqsa-icon.jpg')}}" rel="icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -109,9 +109,7 @@
         .title{
         font-size:16px;
         }
-
         }
-
 
     </style>
 </head>
@@ -120,7 +118,17 @@
 <div class="container p-0">
     <!-- HEADER -->
     <div class="header">
-        <div class="title">Class Assessment</div>
+        <div class="d-flex align-items-center gap-2">
+
+            <a href="{{ url_for('student_dashboard') }}"
+               class="btn btn-light border rounded-3">
+                <i class="bi bi-house-door-fill"></i>
+            </a>
+
+            <div class="title">
+                শ্রেণী মূল্যায়ন
+            </div>
+        </div>
     </div>
 
     <div class="page">
@@ -128,25 +136,15 @@
         <div class="filter-card">
             <div class="row g-2">
                 <input type="hidden" id="studentID" value="{{ current_user.school_id }}" required>
-                <input type="hidden" id="branchSelect"  value="{{ current_user.branch.name}}" required>
+                <input type="hidden" id="branchSelect" value="{{ current_user.branch.name}}" required>
                 <input type="hidden" id="classSelect" value="{{ student_class }}" required>
 
                 <div class="col-md-8">
                     <select id="monthSelect" class="form-select" required>
                         <option>Select Month</option>
-                        <option>January {{ year }}</option>
-                        <option>February {{ year }}</option>
-                        <option>March {{ year }}</option>
-                        <option>April {{ year }}</option>
-                        <option>May {{ year }}</option>
-                        <option>June {{ year }}</option>
-                        <option>July {{ year }}</option>
-                        <option>August {{ year }}</option>
-                        <option>September {{ year }}</option>
-                        <option>October {{ year }}</option>
-                        <option>November {{ year }}</option>
-                        <option>December {{ year }}</option>
-
+                        {% for month in months %}
+                        <option>{{month}}</option>
+                        {%endfor%}
                     </select>
                 </div>
 
@@ -161,87 +159,15 @@
         <!-- CLASS ASSESSMENT TABLE -->
         <div id="class-resultCard" class="class-result-card d-none">
             <div class="table-responsive">
-                  <h5 style="text-align:center;">Roll: {{current_user.school_id}}</h5>
+                <div id="student-info" style="text-align:center"></div>
                 <table class="table class-result-table align-middle">
-                    <thead>
-                    <tr>
-                        <th><b>বিষয়ের নাম</b></th>
-                        <th><b>প্রাপ্ত নাম্বার</b></th>
-                    </tr>
+                    <thead id="class-resultHead">
                     </thead>
                     <tbody id="class-resultBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
-
-    <!-- UPLOAD MODAL -->
-    <div class="modal fade" id="uploadModal">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        Upload Result - Class Assessment
-                    </h5>
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-                    <form  method="POST" action="{{ url_for('upload_class_result') }}" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label class="form-label">Branch</label>
-                            <select name="branch_name" class="form-select">
-                                <option>Netrakona</option>
-                                <option>Purbadhala</option>
-                                <option>Kalmakanda</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Class</label>
-                            <select name="class_name" class="form-select">
-                                <option>Play</option>
-                                <option>Nursery</option>
-                                <option>One</option>
-                                <option>Two</option>
-                                <option>Three</option>
-                                <option>Four</option>
-                                <option>Five</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Month</label>
-                            <select name="month_name" class="form-select">
-                                <option>January {{ year }}</option>
-                                <option>February {{ year }}</option>
-                                <option>March {{ year }}</option>
-                                <option>April {{ year }}</option>
-                                <option>May {{ year }}</option>
-                                <option>June {{ year }}</option>
-                                <option>July {{ year }}</option>
-                                <option>August {{ year }}</option>
-                                <option>September {{ year }}</option>
-                                <option>October {{ year }}</option>
-                                <option>November {{ year }}</option>
-                                <option>December {{ year }}</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Upload Excel (Must contain 'ID', 'Arabic', 'Bengali', 'English', 'Math' & 'Total' Column)</label>
-                            <input type="file" name="excel_file" accept=".xlsx,.xls" class="form-control" required>
-                        </div>
-
-                        <button class="btn btn-success w-100">
-                            Submit
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -252,9 +178,12 @@
     const studentID = document.getElementById("studentID").value
 
     if(monthName === "Select Month" ){
-    alert("Please select month!")
+    alert("অনুগ্রহ করে মাসের নাম নির্বাচন করুন !")
     return
-}
+    }
+
+    searchBtn.disabled = true;
+    searchBtn.innerHTML = "Loading...";
 
     const response = await fetch("/api/search-class-result",{
 
@@ -270,35 +199,41 @@
     student_id: studentID,
     })
     })
+    searchBtn.disabled = false;
+    searchBtn.innerHTML = "Search";
+
 
     const result = await response.json()
 
+    const studentInfo = document.getElementById("student-info")
+    const thead = document.getElementById("class-resultHead")
     const tbody = document.getElementById("class-resultBody")
     const card = document.getElementById("class-resultCard")
 
+    studentInfo.innerHTML = ""
+    thead.innerHTML = ""
     tbody.innerHTML = ""
 
-    if(result.data.length === 0){
-    tbody.innerHTML = `
-    <tr>
-        <td colspan="3" class="text-center text-muted">
-        No accounts history  found!
-        </td>
-    </tr>`
-    }
+    card.classList.remove("d-none");
 
-    if(result.data.length > 0){
-        card.classList.remove("d-none")
-    }else{
-        card.classList.add("d-none")
-    }
+    const row = result.data[0];
+
+    studentInfo.innerHTML = `
+    <h4>আল-আকসা ইসলামী একাডেমী</h4>
+    <h5>প্রোগ্রেস রিপোর্ট</h5>
+    <h6>নামঃ ${row.student_name}</h6>
+    <h6>রোলঃ ${row.ID}</h6>
+    `
+
+    thead.innerHTML = `
+                    <tr>
+                        <th><b>বিষয়ের নাম</b></th>
+                        <th><b>প্রাপ্ত নাম্বার</b></th>
+                    </tr>`
 
 
-     result.data.forEach(row => {
-
-    const firstChar = Number(row.ID.toString()[0])
+    const firstChar = Number(row.ID.toString()[0]);
     if(firstChar >= 1 && firstChar <= 4){
-
         tbody.innerHTML += `
         <tr><td>আরবী:</td><td>${row.arabic}</td></tr>
         <tr><td>বাংলা:</td><td>${row.bengali}</td></tr>
@@ -322,18 +257,6 @@
     }
 
 })
-    attachEditEvents()
-    })
-
-
-    function attachEditEvents(){
-    document.querySelectorAll(".editBtn").forEach(btn=>{
-    btn.addEventListener("click",function(){
-    document.getElementById("edit_id").value=this.dataset.id
-    document.getElementById("edit_topic").value=this.dataset.topic
-    })
-    })
-    }
 
 
 </script>

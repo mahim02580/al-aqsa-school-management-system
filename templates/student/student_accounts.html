@@ -118,8 +118,18 @@
 <body>
 <div class="container p-0">
     <!-- HEADER -->
-    <div class="header">
-        <div class="title">Accounts</div>
+   <div class="header">
+        <div class="d-flex align-items-center gap-2">
+
+            <a href="{{ url_for('student_dashboard') }}"
+               class="btn btn-light border rounded-3">
+                <i class="bi bi-house-door-fill"></i>
+            </a>
+
+            <div class="title">
+                Accounts
+            </div>
+        </div>
     </div>
 
     <div class="page">
@@ -132,7 +142,7 @@
         <!-- ACCOUNTS TABLE -->
         <div id="accountsCard" class="accounts-card">
             <div class="table-responsive">
-                <h5 style="text-align:center;">Roll: {{current_user.school_id}}</h5>
+                <div id="student-info" class="text-center"></div>
                 <table class="table accounts-table align-middle">
 
                     <thead>
@@ -200,6 +210,11 @@
             }
 
             result.data.forEach(row => {
+                document.getElementById("student-info").innerHTML = `
+                <h4>আল-আকসা ইসলামী একাডেমী</h4>
+                <h5>বেতন কার্ড</h5>
+                <h6>নামঃ ${row.student_name}</h6>
+                <h6>রোলঃ ${row.ID}</h6>`
 
                 tbody.innerHTML += `
                     <tr>

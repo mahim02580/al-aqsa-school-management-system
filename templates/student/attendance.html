@@ -122,8 +122,17 @@
 <div class="container p-0">
     <!-- HEADER -->
     <div class="header">
-        <div class="title">Attendance</div>
+        <div class="d-flex align-items-center gap-2">
 
+            <a href="{{ url_for('student_dashboard') }}"
+               class="btn btn-light border rounded-3">
+                <i class="bi bi-house-door-fill"></i>
+            </a>
+
+            <div class="title">
+                Attendance
+            </div>
+        </div>
     </div>
 
     <div class="page">
@@ -163,110 +172,12 @@
         <!-- ATTENDANCE TABLE -->
         <div id="attendanceCard" class="attendance-card d-none">
             <div class="table-responsive">
-                  <h5 style="text-align:center;">Roll: {{current_user.school_id}}</h5>
+                <div id="student-info" class="text-center"></div>
                 <table class="table attendance-table align-middle">
-                    <thead>
-                    <tr>
-                        <th>তারিখ</th>
-                        <th>উপস্থিতি</th>
-                    </tr>
+                    <thead id="attendanceHead">
                     </thead>
                     <tbody id="attendanceBody"></tbody>
                 </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- UPLOAD MODAL -->
-    <div class="modal fade" id="uploadModal">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        Upload Attendance Info
-                    </h5>
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-                    <form method="POST" action="{{ url_for('upload_attendance') }}" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label class="form-label">Branch</label>
-                            <select name="branch_name" class="form-select">
-                                <option>Netrakona</option>
-                                <option>Purbadhala</option>
-                                <option>Kalmakanda</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Class</label>
-                            <select name="class_name" class="form-select">
-                                <option>Play</option>
-                                <option>Nursery</option>
-                                <option>One</option>
-                                <option>Two</option>
-                                <option>Three</option>
-                                <option>Four</option>
-                                <option>Five</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Month</label>
-                            <select name="month_name" class="form-select">
-                                <option>January {{ year }}</option>
-                                <option>February {{ year }}</option>
-                                <option>March {{ year }}</option>
-                                <option>April {{ year }}</option>
-                                <option>May {{ year }}</option>
-                                <option>June {{ year }}</option>
-                                <option>July {{ year }}</option>
-                                <option>August {{ year }}</option>
-                                <option>September {{ year }}</option>
-                                <option>October {{ year }}</option>
-                                <option>November {{ year }}</option>
-                                <option>December {{ year }}</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Upload Excel (Must contain 'ID', 'Total Working Days', 'Present' &
-                                'Absent' Columns)</label>
-                            <input type="file" name="excel_file" accept=".xlsx,.xls" class="form-control" required>
-                        </div>
-
-                        <button class="btn btn-success w-100">
-                            Submit
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- EDIT MODAL -->
-    <div class="modal fade" id="editModal">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        Edit Lesson Schedule
-                    </h5>
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="updateForm">
-                        <input type="hidden" name="id" id="edit_id">
-                        <div class="mb-3">
-                            <label class="form-label">Topic</label>
-                            <input type="text" name="topic" id="edit_topic" class="form-control">
-                        </div>
-                        <button class="btn btn-success w-100">
-                            Update
-                        </button>
-                    </form>
-                </div>
             </div>
         </div>
     </div>
@@ -280,9 +191,11 @@
     const studentID = document.getElementById("studentID").value
 
     if(monthName === "Select Month" ){
-    alert("Please select month!")
+    alert("অনুগ্রহ করে মাসের নাম নির্বাচন করুন !")
     return
 }
+    searchBtn.disabled = true;
+    searchBtn.innerHTML = "Loading...";
 
     const response = await fetch("/api/search-attendance",{
 
@@ -298,39 +211,48 @@
     student_id: studentID,
     })
     })
+    searchBtn.disabled = false;
+    searchBtn.innerHTML = "Search";
 
     const result = await response.json()
 
+    const studentInfo = document.getElementById("student-info")
+    const thead = document.getElementById("attendanceHead")
     const tbody = document.getElementById("attendanceBody")
     const card = document.getElementById("attendanceCard")
 
+    studentInfo.innerHTML = ""
+    thead.innerHTML = ""
     tbody.innerHTML = ""
+
+    card.classList.remove("d-none");
 
     if(result.data.length === 0){
     tbody.innerHTML = `
     <tr>
-        <td colspan="3" class="text-center text-muted">
-        No attendance history  found!
+        <td class="text-center text-muted">
+        উক্ত মাসের উপস্থিতির তথ্য পাওয়া যায়নি !
         </td>
     </tr>`
-    }
-
-    if(result.data.length > 0){
-        card.classList.remove("d-none")
     }else{
-        card.classList.add("d-none")
-    }
 
-    tbody.innerHTML = ""
+    const row = result.data[0]
 
-   result.data.forEach(row => {
+    studentInfo.innerHTML = `
+    <h4>আল-আকসা ইসলামী একাডেমী</h4>
+    <h5>উপস্থিতির রিপোর্ট</h5>
+    <h6>নামঃ ${row.student_name}</h6>
+    <h6>রোলঃ ${row.ID}</h6>
+    `
+    thead.innerHTML +=  `<tr>
+                <th>তারিখ</th>
+                <th>উপস্থিতি</th>
+              </tr>`
 
     let attendanceColumns = ""
 
     for(let i = 1; i <= 31; i++){
-
         const day = `d${i}`
-
         attendanceColumns += `<tr>
         <tr><td>${i}</td> <td>${ row[day] === "1" ? "✔" : row[day] === "0" ? "✗" : row[day] === null ? "" : row[day]}</td></tr>
         `
@@ -339,43 +261,8 @@
     tbody.innerHTML += `
         ${attendanceColumns}
     `
+    }
 })
-    attachEditEvents()
-    })
-
-
-    function attachEditEvents(){
-    document.querySelectorAll(".editBtn").forEach(btn=>{
-    btn.addEventListener("click",function(){
-    document.getElementById("edit_id").value=this.dataset.id
-    document.getElementById("edit_topic").value=this.dataset.topic
-    })
-    })
-    }
-
-
-    document.getElementById("uploadForm").addEventListener("submit", async function(e){
-    e.preventDefault()
-
-    const data={
-    branch: document.getElementById("edit_id").value,
-    class:document.getElementById("edit_topic").value,
-    month: document.getElementById("").value,
-    excel_file: document.getElementById(""),
-
-    }
-
-    await fetch("/api/upload-attendance",{
-    method:"POST",
-    headers:{
-    "Content-Type":"application/json"
-    },
-    body:JSON.stringify(data)
-    })
-
-    bootstrap.Modal.getInstance(document.getElementById("editModal")).hide()
-    document.getElementById("searchBtn").click()
-    })
 
 </script>
 </body>

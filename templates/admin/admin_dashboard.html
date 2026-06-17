@@ -124,6 +124,7 @@
         .attendance{background:linear-gradient(135deg,#60a5fa,#2563eb);}
         .accounts{background:linear-gradient(135deg,#fbbf24,#f59e0b);}
         .result{background:linear-gradient(135deg,#c084fc,#9333ea);}
+        .comment{background:linear-gradient(135deg,#22d3ee,#0891b2);}
         .call{background:linear-gradient(135deg,#22d3ee,#0891b2);}
         .about{background:linear-gradient(135deg,#94a3b8,#64748b);}
         .notice{background:linear-gradient(135deg,#f97316,#ea580c);}
@@ -280,6 +281,13 @@
             </div>
         </a>
 
+        <a href="{{ url_for('submitted_comments') }}" class="card-link">
+            <div class="card-btn">
+                <div class="icon-circle comment"><i class="bi bi-chat-dots-fill"></i></div>
+                <div class="card-title">Comments</div>
+            </div>
+        </a>
+
         <a href="{{ url_for('notice_board_management') }}" class="card-link">
             <div class="card-btn">
                 <div class="icon-circle notice"><i class="bi bi-megaphone-fill"></i></div>
@@ -287,7 +295,7 @@
             </div>
         </a>
 
-            <a href="{{ url_for('log_info') }}" class="card-link">
+        <a href="{{ url_for('log_info') }}" class="card-link">
             <div class="card-btn">
                 <div class="icon-circle log-info"><i class="bi bi-person-lines-fill"></i></div>
                 <div class="card-title">Log Info</div>

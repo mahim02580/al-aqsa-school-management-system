@@ -127,7 +127,8 @@
         .attendance{background:linear-gradient(135deg,#60a5fa,#2563eb);}
         .accounts{background:linear-gradient(135deg,#fbbf24,#f59e0b);}
         .result{background:linear-gradient(135deg,#c084fc,#9333ea);}
-        .call{background:linear-gradient(135deg,#22d3ee,#0891b2);}
+        .comment{background:linear-gradient(135deg,#22d3ee,#0891b2);}
+        .call{ background:linear-gradient(135deg,#818cf8,#4338ca);}
         .about{background:linear-gradient(135deg,#94a3b8,#64748b);}
         .notice{background:linear-gradient(135deg,#f97316,#ea580c);}
         .qr{background:linear-gradient(135deg,#fb7185,#e11d48);}
@@ -293,6 +294,13 @@ border-radius:10px;
             <div class="card-btn">
                 <div class="icon-circle notice"><i class="bi bi-megaphone-fill"></i></div>
                 <div class="card-title">Notice Board</div>
+            </div>
+        </a>
+
+        <a href="{{ url_for('student_comment') }}" class="card-link">
+            <div class="card-btn">
+                <div class="icon-circle comment"><i class="bi bi-chat-dots-fill"></i></div>
+                <div class="card-title">Comment</div>
             </div>
         </a>
 

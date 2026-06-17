@@ -197,6 +197,7 @@ class ClassTestResultRecord(db.Model):
     bgs: Mapped[float] = mapped_column(nullable=True)
     total: Mapped[float] = mapped_column(nullable=True)
 
+
 class Notice(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     notice_link: Mapped[str] = mapped_column()
@@ -214,6 +215,13 @@ class PhoneNumber(db.Model):
     branch_name: Mapped[str] = mapped_column()
     name: Mapped[str] = mapped_column()
     phone_number: Mapped[str] = mapped_column()
+
+
+class Comment(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column()
+    comment: Mapped[str] = mapped_column()
+    comment_time: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Dhaka")))
 
 
 # End of DB Models------------------------------------------------------------------------------------------------------
@@ -436,6 +444,21 @@ def notice_board_management():
 def log_info():
     log_infos = db.session.query(LogInfo).all()[::-1]
     return render_template("admin/log_info.html", log_infos=log_infos)
+
+
+@app.route("/submitted-comments")
+@login_required
+@roles_required(ADMIN_ROLE)
+def submitted_comments():
+    comments = db.session.query(Comment).all()
+    return render_template("admin/comments.html", comments=comments)
+
+
+@app.route("/comment")
+@login_required
+def student_comment():
+    comments = db.session.query(Comment).filter_by(username=current_user.username).all()
+    return render_template("student/comments.html", comments=comments)
 
 
 @app.route("/call-services")
@@ -1187,7 +1210,6 @@ def upload_notice():
 def search_login_info():
     data = request.json
     selected_date = data["date"]
-    logs = db.session.query(LogInfo).all()
 
     log_infos = db.session.query(LogInfo).filter(
         func.date(LogInfo.login_time) == selected_date
@@ -1199,6 +1221,31 @@ def search_login_info():
         results.append({
             "username": log.username,
             "login_time": log.login_time.strftime("%d-%m-%Y %I:%M %p")
+        })
+
+    return jsonify({
+        "data": results
+    })
+
+
+@app.route("/api/search-comments", methods=["POST"])
+@login_required
+@roles_required(ADMIN_ROLE)
+def search_comments():
+    data = request.json
+    selected_date = data["date"]
+
+    comments = db.session.query(Comment).filter(
+        func.date(Comment.comment_time) == selected_date
+    ).order_by(Comment.comment_time.desc()).all()
+
+    results = []
+
+    for comment in comments:
+        results.append({
+            "comment": comment.comment,
+            "username": comment.username,
+
         })
 
     return jsonify({
@@ -1221,6 +1268,23 @@ def upload_phone_number():
         db.session.rollback()
         flash(str(e), "danger")
         return redirect(url_for("call_services"))
+
+
+@app.route('/api/upload-comment', methods=['POST'])
+def upload_comment():
+    try:
+        username = request.form["username"]
+        comment = request.form["comment"]
+
+        new_comment = Comment(username=username, comment=comment)
+        db.session.add(new_comment)
+        db.session.commit()
+        flash("Comment submitted successfully.", "success")
+        return redirect(url_for("student_comment"))
+    except Exception as e:
+        db.session.rollback()
+        flash(str(e), "danger")
+        return redirect(url_for("student_comment"))
 
 
 # Others ---------------------------------------------------------------------------------------------------------------

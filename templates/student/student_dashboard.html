@@ -255,12 +255,22 @@ border-radius:10px;
     <!-- DASHBOARD -->
 
     <div class="dashboard">
+
+        {% if class_code < 5: %}
         <a href="{{ url_for('student_lesson_schedule', student_id=current_user.school_id) }}" class="card-link">
             <div class="card-btn">
                 <div class="icon-circle schedule"><i class="bi bi-journal-text"></i></div>
                 <div class="card-title">Lesson Schedule</div>
             </div>
         </a>
+        {% else %}
+         <a href="{{ url_for('student_lesson_syllabus', student_id=current_user.school_id) }}" class="card-link">
+            <div class="card-btn">
+                <div class="icon-circle schedule"><i class="bi bi-journal-text"></i></div>
+                <div class="card-title">Lesson Syllabus</div>
+            </div>
+        </a>
+        {% endif%}
 
         <a href="{{ url_for('student_attendance', student_id=current_user.school_id) }}" class="card-link">
             <div class="card-btn">

@@ -171,7 +171,7 @@
             <div class="row g-2">
                 <form method="POST" action="{{url_for('upload_comment')}}" enctype="multipart/form-data">
                     <div class="col-md-8">
-                        <textarea name="comment" style="width:100%;height:150px;" placeholder="আপনার মন্তব্য লিখুন..."></textarea>
+                        <textarea name="comment" style="width:100%;height:150px;" placeholder="আপনার মন্তব্য লিখুন..." required></textarea>
                     </div>
                     <input type="hidden" name="username" value="{{current_user.username}}">
                     <div class="col-md-4">

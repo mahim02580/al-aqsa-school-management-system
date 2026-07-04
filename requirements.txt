@@ -6,3 +6,4 @@ flask-sqlalchemy
 flask-login
 pandas
 openpyxl
+bijoy2unicode

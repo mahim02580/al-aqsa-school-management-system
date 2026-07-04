@@ -292,7 +292,8 @@ def teacher_dashboard():
 @login_required
 @roles_required(STUDENT_ROLE)
 def student_dashboard():
-    return render_template('student/student_dashboard.html')
+    class_code = int(str(current_user.school_id)[0])
+    return render_template('student/student_dashboard.html', class_code=class_code)
 
 
 # Options --------------------------------------------------------------------------------------------------------------
@@ -308,6 +309,20 @@ def student_lesson_schedule():
     student_id = str(request.args.get("student_id"))
     student_class = CLASS_MAP[int(student_id[:1])]
     return render_template("student/lesson_schedule.html", student_class=student_class)
+
+
+@app.route("/student-lesson-syllabus")
+@login_required
+def student_lesson_syllabus():
+    student_id = str(request.args.get("student_id"))
+    student_class = CLASS_MAP[int(student_id[:1])]
+    return render_template("student/student_lesson_syllabus.html", student_class=student_class)
+
+
+@app.route("/lesson-syllabus")
+@login_required
+def lesson_syllabus():
+    return render_template("lesson_syllabus.html")
 
 
 @app.route("/attendance")
@@ -533,6 +548,29 @@ def upload_curriculum():
 
         flash(str(e), "danger")
         return redirect(url_for("lesson_schedule"))
+
+
+@app.route("/upload-syllabus", methods=["POST"])
+@login_required
+@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
+def upload_syllabus():
+    try:
+        class_name = request.form["class_name"].strip()
+        file = request.files.get("pdf_file")
+
+        if not file or file.filename == "":
+            raise ValueError("No file uploaded")
+
+        file.save(f"static/img/syllabus/{class_name}.pdf")
+
+        flash("Lesson syllabus uploaded successfully.", "success")
+        return redirect(url_for("lesson_syllabus"))
+
+    except Exception as e:
+        db.session.rollback()
+
+        flash(str(e), "danger")
+        return redirect(url_for("lesson_syllabus"))
 
 
 @app.route("/api/search-curriculum", methods=["POST"])

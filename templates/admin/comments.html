@@ -228,7 +228,7 @@
                         <td class="comment-col">{{ comment.reply.reply_txt }}</td>
                         <td>{{ comment.username}}</td>
                         <td>{{ comment.comment_time.strftime("%d-%m-%Y %I: %M %p") }}</td>
-                        <td class="text-end">
+                        <td>
                             <button class="btn btn-light btn-sm me-1" onclick="openReplyModal('{{comment.id}}')">
                                 <i class="bi bi-reply-fill"></i>
                             </button>
@@ -283,11 +283,11 @@
             result.data.forEach(row => {
                 tbody.innerHTML += `
     <tr>
-        <td>${row.comment}</td>
-        <td>${row.reply_txt}</td>
+        <td class="comment-col">${row.comment}</td>
+        <td class="comment-col">${row.reply_txt}</td>
         <td>${row.username}</td>
         <td>${row.comment_time}</td>
-        <td class="text-end"> <button class="btn btn-light btn-sm me-1" onclick="openReplyModal('${row.id}')">
+        <td> <button class="btn btn-light btn-sm me-1" onclick="openReplyModal('${row.id}')">
             <i class="bi bi-reply-fill"></i>
             </button></td>
     </tr>

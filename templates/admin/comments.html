@@ -100,6 +100,13 @@
             background: #f9fafc;
         }
 
+        .comment-col {
+            white-space: normal !important;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            max-width: 100px;
+        }
+
         /* MOBILE IMPROVEMENTS */
         @media (max-width: 768px) {
             .header {
@@ -207,8 +214,8 @@
                 <table class="table comment-table align-middle">
                     <thead>
                     <tr>
-                        <th style="width: 200px" ><b>মন্তব্য</b></th>
-                        <th style="width: 200px"><b>মন্তব্যের উত্তর</b></th>
+                        <th><b>মন্তব্য</b></th>
+                        <th><b>মন্তব্যের উত্তর</b></th>
                         <th><b>মন্তব্যকারী</b></th>
                         <th><b>সময়</b></th>
                         <th><b>অ্যাকশান</b></th>
@@ -217,8 +224,8 @@
                     <tbody id="commentBody">
                     {% for comment in comments %}
                     <tr>
-                        <td>{{ comment.comment }}</td>
-                        <td>{{ comment.reply.reply_txt }}</td>
+                        <td class="comment-col">{{ comment.comment }}</td>
+                        <td class="comment-col">{{ comment.reply.reply_txt }}</td>
                         <td>{{ comment.username}}</td>
                         <td>{{ comment.comment_time.strftime("%d-%m-%Y %I: %M %p") }}</td>
                         <td class="text-end">

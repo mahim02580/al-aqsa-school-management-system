@@ -198,7 +198,7 @@
                     {% for comment in comments[::-1] %}
                     <tr>
                         <td>{{ comment.comment }}</td>
-                        <td>{{ comment.reply[-1].reply_txt }}</td>
+                        <td>{{ comment.reply.reply_txt }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>

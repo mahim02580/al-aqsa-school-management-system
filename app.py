@@ -223,7 +223,7 @@ class Comment(db.Model):
     comment: Mapped[str] = mapped_column()
     comment_time: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Dhaka")))
 
-    reply = relationship("CommentReply", back_populates="comment")
+    reply = relationship("CommentReply", back_populates="comment", uselist=False)
 
 
 class CommentReply(db.Model):
@@ -1297,7 +1297,7 @@ def search_comments():
             "id": comment.id,
             "comment": comment.comment,
             "username": comment.username,
-            "reply_txt": comment.reply[-1].reply_txt,
+            "reply_txt": comment.reply.reply_txt,
             "comment_time": comment.comment_time.strftime("%d-%m-%Y %I: %M %p"),
 
 

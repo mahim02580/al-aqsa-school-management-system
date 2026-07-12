@@ -218,7 +218,7 @@
                     {% for comment in comments %}
                     <tr>
                         <td>{{ comment.comment }}</td>
-                        <td>{{ comment.reply[-1].reply_txt }}</td>
+                        <td>{{ comment.reply.reply_txt }}</td>
                         <td>{{ comment.username}}</td>
                         <td>{{ comment.comment_time.strftime("%d-%m-%Y %I: %M %p") }}</td>
                         <td class="text-end">

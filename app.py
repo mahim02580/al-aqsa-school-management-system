@@ -223,6 +223,19 @@ class Comment(db.Model):
     comment: Mapped[str] = mapped_column()
     comment_time: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Dhaka")))
 
+    reply = relationship("CommentReply", back_populates="comment")
+
+
+class CommentReply(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    replier: Mapped[str] = mapped_column()
+    comment_id: Mapped[int] = mapped_column(ForeignKey(Comment.id))
+    reply_txt: Mapped[str] = mapped_column()
+    reply_time: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Dhaka")))
+
+    comment = relationship("Comment", back_populates="reply")
+
+
 
 # End of DB Models------------------------------------------------------------------------------------------------------
 
@@ -465,7 +478,7 @@ def log_info():
 @login_required
 @roles_required(ADMIN_ROLE)
 def submitted_comments():
-    comments = db.session.query(Comment).all()
+    comments = db.session.query(Comment).all()[::-1]
     return render_template("admin/comments.html", comments=comments)
 
 
@@ -1281,8 +1294,12 @@ def search_comments():
 
     for comment in comments:
         results.append({
+            "id": comment.id,
             "comment": comment.comment,
             "username": comment.username,
+            "reply_txt": comment.reply[-1].reply_txt,
+            "comment_time": comment.comment_time.strftime("%d-%m-%Y %I: %M %p"),
+
 
         })
 
@@ -1323,6 +1340,26 @@ def upload_comment():
         db.session.rollback()
         flash(str(e), "danger")
         return redirect(url_for("student_comment"))
+
+
+@app.route("/api/reply-comment", methods=["POST"])
+@login_required
+@roles_required(ADMIN_ROLE)
+def reply_comment():
+    try:
+        comment_id = int(request.form["comment_db_id"])
+        comment_reply = request.form["comment_reply"]
+
+
+        comment_reply = CommentReply(replier=current_user.username, comment_id=comment_id, reply_txt=comment_reply)
+        db.session.add(comment_reply)
+        db.session.commit()
+        flash("Reply sent successfully.", "success")
+        return redirect(url_for("submitted_comments"))
+    except Exception as e:
+        db.session.rollback()
+        flash(str(e), "danger")
+        return redirect(url_for("submitted_comments"))
 
 
 # Others ---------------------------------------------------------------------------------------------------------------

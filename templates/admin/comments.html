@@ -12,109 +12,138 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        body{
-        background:#f4f6fb;
-        font-family:Inter,sans-serif;
-        margin:0;
+        body {
+            background: #f4f6fb;
+            font-family: Inter, sans-serif;
+            margin: 0;
         }
 
         /* HEADER */
-         .header{
-        position:fixed;
-        top:0;
-        left:0;
-        right:0;
-        padding:16px 14px;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        background:white;
-        z-index:1000;
-        box-shadow:0 2px 10px rgba(0,0,0,0.05);
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
-        .title{
-        font-weight:600;
-        font-size:18px;
+        .title {
+            font-weight: 600;
+            font-size: 18px;
         }
 
-        .add-btn{
-        border-radius:10px;
+        .add-btn {
+            border-radius: 10px;
         }
 
         /* PAGE */
-        .page{
-        margin-top:70px;
-        padding:14px;
-        max-width:1100px;
-        margin-left:auto;
-        margin-right:auto;
+        .page {
+            margin-top: 70px;
+            padding: 14px;
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         /* CARD */
         .filter-card,
-        .commentCard{
-        background:white;
-        padding:16px;
-        border-radius:16px;
-        box-shadow:0 4px 15px rgba(0,0,0,.05);
-        margin-bottom:16px;
+        .commentCard {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .05);
+            margin-bottom: 16px;
         }
 
         /* TABLE */
-        .table-responsive{
-        overflow-x:auto;
+        .table-responsive {
+            overflow-x: auto;
         }
 
-        .comment-table{
-        width:100%;
-        table-layout:fixed;
+        .comment-table {
+            min-width: 900px; /* or 1000px */
+            table-layout: auto;
         }
 
         .comment-table th,
-        .comment-table td{
-        word-wrap:break-word;
-        white-space:normal;
+        .comment-table td {
+            white-space: nowrap;
         }
 
-        .comment-table th{
-        font-size:14px;
-        color:#666;
-        font-weight:600;
+        .comment-table th {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
         }
 
-        .comment-table td{
-        vertical-align:middle;
+        .comment-table td {
+            vertical-align: middle;
         }
 
-        .edit-btn{
-        border-radius:8px;
+        .edit-btn {
+            border-radius: 8px;
         }
 
         /* DROP AREA */
-        .drop-area{
-        border:2px dashed #cbd5e1;
-        border-radius:12px;
-        padding:30px;
-        text-align:center;
-        cursor:pointer;
-        background:#f9fafc;
+        .drop-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            background: #f9fafc;
         }
 
         /* MOBILE IMPROVEMENTS */
-        @media (max-width:768px){
-        .header{
-        padding:12px;
-        }
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px;
+            }
 
-        .title{
-        font-size:16px;
-        }
+            .title {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 <body>
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:9999;">
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+
+    {% for category, message in messages %}
+
+    <div class="toast align-items-center text-bg-{{ category }} border-0 show mb-2"
+         role="alert">
+
+        <div class="d-flex">
+
+            <div class="toast-body">
+                {{ message }}
+            </div>
+
+            <button type="button"
+                    class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast">
+            </button>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+    {% endif %}
+    {% endwith %}
+
+</div>
 <div class="container p-0">
     <!-- HEADER -->
     <div class="header">
@@ -148,21 +177,55 @@
                 </div>
             </div>
         </div>
+
+        <!--        Reply Modal-->
+        <div class="modal fade" id="replyModal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reply Comment</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="replyForm" method="POST" action="{{ url_for('reply_comment') }}"
+                              enctype="multipart/form-data">
+                            <input type="hidden" name="comment_db_id" id="comment_id">
+                            <div class="mb-3">
+                                <input id="comment_reply" name="comment_reply" placeholder="Reply"
+                                       class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- COMMENT TABLE -->
         <div id="commentCard" class="commentCard">
             <div class="table-responsive">
                 <table class="table comment-table align-middle">
                     <thead>
                     <tr>
-                        <th style="width:70%"><b>মন্তব্য</b></th>
-                        <th style="width:30%"><b>মন্তব্যকারী</b></th>
+                        <th style="width:30%"><b>মন্তব্য</b></th>
+                        <th style="width:30%"><b>মন্তব্যের উত্তর</b></th>
+                        <th style="width:15%"><b>মন্তব্যকারী</b></th>
+                        <th style="width:15%"><b>সময়</b></th>
+                        <th style="width:10%"><b>অ্যাকশান</b></th>
                     </tr>
                     </thead>
                     <tbody id="commentBody">
-                    {% for comment in comments[::-1] %}
+                    {% for comment in comments %}
                     <tr>
                         <td>{{ comment.comment }}</td>
+                        <td>{{ comment.reply[-1].reply_txt }}</td>
                         <td>{{ comment.username}}</td>
+                        <td>{{ comment.comment_time.strftime("%d-%m-%Y %I: %M %p") }}</td>
+                        <td class="text-end">
+                            <button class="btn btn-light btn-sm me-1" onclick="openReplyModal('{{comment.id}}')">
+                                <i class="bi bi-reply-fill"></i>
+                            </button>
+                        </td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -175,54 +238,65 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.getElementById("searchBtn").addEventListener("click", async function(){
-    const date = document.getElementById("dateSelect").value
+    document.getElementById("searchBtn").addEventListener("click", async function () {
+        const date = document.getElementById("dateSelect").value
 
-    if(!date){
-    alert("অনুগ্রহ করে তারিখ নির্বাচন করুন !")
-    return
-}
+        if (!date) {
+            alert("অনুগ্রহ করে তারিখ নির্বাচন করুন !")
+            return
+        }
 
-    const response = await fetch("/api/search-comments",{
+        const response = await fetch("/api/search-comments", {
 
-    method:"POST",
-    headers:{
-    "Content-Type":"application/json"
-    },
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
 
-    body:JSON.stringify({
-    date:date
-    })
-    })
+            body: JSON.stringify({
+                date: date
+            })
+        })
 
-    const result = await response.json()
+        const result = await response.json()
 
-    const tbody = document.getElementById("commentBody")
-    const card = document.getElementById("commentCard")
-    tbody.innerHTML = ""
+        const tbody = document.getElementById("commentBody")
+        const card = document.getElementById("commentCard")
+        tbody.innerHTML = ""
 
-    if(result.data.length === 0){
-    tbody.innerHTML = `
+        if (result.data.length === 0) {
+            tbody.innerHTML = `
     <tr>
         <td colspan="2" class="text-center text-muted">
         উক্ত তারিখের কোন মন্তব্য পাওয়া যায়নি !
         </td>
     </tr>`
-    } else {
+        } else {
 
-    result.data.forEach(row=>{
-    tbody.innerHTML += `
+            result.data.forEach(row => {
+                tbody.innerHTML += `
     <tr>
         <td>${row.comment}</td>
+        <td>${row.reply_txt}</td>
         <td>${row.username}</td>
+        <td>${row.comment_time}</td>
+        <td class="text-end"> <button class="btn btn-light btn-sm me-1" onclick="openReplyModal('${row.id}')">
+            <i class="bi bi-reply-fill"></i>
+            </button></td>
     </tr>
     `
 
+            })
+        }
     })
+
+    function openReplyModal(id) {
+
+        document.getElementById("comment_id").value = id
+
+        new bootstrap.Modal(document.getElementById("replyModal")).show()
+
     }
-    })
-
-
 </script>
 </body>
 </html>

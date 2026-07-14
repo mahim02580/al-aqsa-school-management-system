@@ -226,10 +226,11 @@ border-radius:10px;
 
     <div class="page">
 
+        {% for src in srcs %}
         <div class="notice-wrapper">
             <img src="{{src}}" class="notice-img" alt="Notice Image">
         </div>
-
+        {% endfor %}
 
         <!-- UPLOAD MODAL -->
         <div class="modal fade" id="uploadModal">

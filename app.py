@@ -462,8 +462,28 @@ def student_user_management():
 @app.route("/notice-board-management")
 @login_required
 def notice_board_management():
-    img_source_link = f"static/img/notices/{current_user.branch.name}/notice.png"
-    return render_template("notice_board_management.html", src=img_source_link)
+    notice_folder = os.path.join(
+        app.static_folder,
+        "img",
+        "notices",
+        current_user.branch.name
+    )
+
+    image_extensions = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp")
+
+    images = []
+
+    for file in os.listdir(notice_folder):
+        if file.lower().endswith(image_extensions):
+            images.append(
+                url_for(
+                    "static",
+                    filename=f"img/notices/{current_user.branch.name}/{file}"
+                )
+            )
+
+
+    return render_template("notice_board_management.html", srcs=images[::-1])
 
 
 @app.route("/log-info")
@@ -1246,7 +1266,7 @@ def upload_notice():
     try:
         img = request.files["img"]
         branch = request.form["branch_name"]
-        img.save(f"static/img/notices/{branch}/notice.png")
+        img.save(f"static/img/notices/{branch}/{datetime.now().strftime("%d-%m-%Y %H-%M-%S")}.png")
         flash("Notice uploaded successfully.", "success")
         return redirect(url_for("notice_board_management"))
     except Exception as e:

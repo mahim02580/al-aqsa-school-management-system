@@ -482,7 +482,6 @@ def notice_board_management():
                 )
             )
 
-
     return render_template("notice_board_management.html", srcs=images[::-1])
 
 

@@ -1266,7 +1266,7 @@ def upload_notice():
     try:
         img = request.files["img"]
         branch = request.form["branch_name"]
-        img.save(f"static/img/notices/{branch}/{datetime.now().strftime("%d-%m-%Y %H-%M-%S")}.png")
+        img.save(f"static/img/notices/{branch}/{datetime.now(ZoneInfo("Asia/Dhaka")).strftime("%d-%m-%Y %H-%M-%S")}.png")
         flash("Notice uploaded successfully.", "success")
         return redirect(url_for("notice_board_management"))
     except Exception as e:

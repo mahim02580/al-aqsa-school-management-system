@@ -474,7 +474,6 @@ def notice_board_management():
     files = sorted(
         os.listdir(notice_folder),
         key=lambda f: os.path.getmtime(os.path.join(notice_folder, f)),
-        reverse=True
     )
 
     for file in files:

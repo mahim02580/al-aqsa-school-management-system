@@ -236,7 +236,6 @@ class CommentReply(db.Model):
     comment = relationship("Comment", back_populates="reply")
 
 
-
 # End of DB Models------------------------------------------------------------------------------------------------------
 
 with app.app_context():
@@ -472,8 +471,13 @@ def notice_board_management():
     image_extensions = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp")
 
     images = []
+    files = sorted(
+        os.listdir(notice_folder),
+        key=lambda f: os.path.getmtime(os.path.join(notice_folder, f)),
+        reverse=True
+    )
 
-    for file in os.listdir(notice_folder):
+    for file in files:
         if file.lower().endswith(image_extensions):
             images.append(
                 url_for(
@@ -1265,7 +1269,8 @@ def upload_notice():
     try:
         img = request.files["img"]
         branch = request.form["branch_name"]
-        img.save(f"static/img/notices/{branch}/{datetime.now(ZoneInfo("Asia/Dhaka")).strftime("%d-%m-%Y %H-%M-%S")}.png")
+        img.save(
+            f"static/img/notices/{branch}/{datetime.now(ZoneInfo("Asia/Dhaka")).strftime("%d-%m-%Y %H-%M-%S")}.png")
         flash("Notice uploaded successfully.", "success")
         return redirect(url_for("notice_board_management"))
     except Exception as e:
@@ -1319,7 +1324,6 @@ def search_comments():
             "reply_txt": comment.reply.reply_txt,
             "comment_time": comment.comment_time.strftime("%d-%m-%Y %I: %M %p"),
 
-
         })
 
     return jsonify({
@@ -1368,7 +1372,6 @@ def reply_comment():
     try:
         comment_id = int(request.form["comment_db_id"])
         comment_reply = request.form["comment_reply"]
-
 
         comment_reply = CommentReply(replier=current_user.username, comment_id=comment_id, reply_txt=comment_reply)
         db.session.add(comment_reply)

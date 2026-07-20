@@ -1,4 +1,6 @@
 import os
+from urllib.parse import unquote
+
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, jsonify
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -1381,6 +1383,23 @@ def reply_comment():
         db.session.rollback()
         flash(str(e), "danger")
         return redirect(url_for("submitted_comments"))
+
+
+@app.route("/api/delete_notice", methods=["DELETE"])
+@roles_required(ADMIN_ROLE, SERVICE_ADMIN_ROLE)
+def delete_notice():
+    notice_url = request.json.get("notice_path")
+    # Remove the leading "/"
+    notice_url = notice_url.lstrip("/")
+
+    # Decode %20 -> space
+    notice_url = unquote(notice_url)
+
+    notice_path = os.path.join(app.root_path, notice_url)
+
+    os.remove(notice_path)
+
+    return {"success": True}
 
 
 # Others ---------------------------------------------------------------------------------------------------------------
